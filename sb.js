@@ -14,7 +14,7 @@ let supabase = createClient('https://bmqblboosmqzcfdwnopt.supabase.co', 'eyJhbGc
 
 console.log('Supabase Instance: ', supabase);
 
-const { data, error } = await supabase
+const { members, error } = await supabase
   .from('members')
   .select()
 

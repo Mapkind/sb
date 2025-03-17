@@ -14,8 +14,35 @@ let supabase = createClient('https://bmqblboosmqzcfdwnopt.supabase.co', 'eyJhbGc
 
 console.log('Supabase Instance: ', supabase);
 
-const { members, error } = await supabase
-  .from('members')
-  .select()
+async function getMembers(){
+    const { data, error } = await supabase
+    .from('members')
+    .select()
+  
+    console.log("members: ", data);
+}
 
-  console.log("members: ", members);
+async function getFeatures(){
+    const { data, error } = await supabase
+    .from('features')
+    .select()
+  
+    console.log("features: ", data);
+}
+
+getMembers();
+getFeatures();
+
+
+async function createFeature(){
+    const { error } = await supabase
+  .from('countries')
+  .insert({ id: 1, name: 'Mordor' })
+
+  if(!error){
+    console.log("Feature created");
+    getFeatures();
+  }
+}
+
+

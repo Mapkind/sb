@@ -24,7 +24,7 @@ async function getPointFeatures(id){
     const { data, error } = await supabase
     .from('features')
     //.select('geom->geometry->type, ? (@ = fType)')
-    .select()
+    .select('geom->geometry, geom->properties, geom->type, geom->source')
     .eq('fType','Point')
     .eq('memid', id)
     console.log("Point features: ", data);

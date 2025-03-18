@@ -33,8 +33,21 @@ async function getFeatures(){
     console.log("features: ", data);
 }
 
+async function getPointFeatures(){
+    const { data, error } = await supabase
+    .from('features')
+    //.select('geom->geometry->type, ? (@ = fType)')
+    .select()
+    //.not('globalid', 'eq', '111-111-111')
+    .eq('fType','point')
+    
+  
+    console.log("Point features: ", data);
+}
+
 getMembers();
 getFeatures();
+getPointFeatures();
 
 
 async function createFeature(){

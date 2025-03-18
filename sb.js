@@ -11,14 +11,12 @@ async function getMembers(){
     console.log("members: ", data);
 }
 
-async function getFeatures(){
+async function getFeatures(id){
     const { data, error } = await supabase
     .from('features')
     .select()
     //.not('globalid', 'eq', '111-111-111')
-    //.eq('memid', 'mem_1')
-    
-  
+    .eq('memid', id)
     console.log("features: ", data);
 }
 
@@ -41,7 +39,7 @@ async function getLineFeatures(){
   console.log("Line features: ", data);
 }
 
-async function getEpisodeFeatures(episode){
+async function getEpisodeFeatures(episode, id){
   const { data, error } = await supabase
   .from('features')
   //.select('globalid, name, ')
@@ -57,6 +55,7 @@ async function getEpisodeFeatures(episode){
     )
   `)
   .eq('features_in_episodes.eID',episode)
+  .eq('memid', id)
   console.log("Episode features: ", data);
 }
 
@@ -66,12 +65,13 @@ async function getEpisodeFeatures(episode){
     )*/
 
 getMembers();
-getFeatures();
+var memid = "mem_1";
+getFeatures(memid);
 getPointFeatures();
 getLineFeatures();
 
 var theEpisode = "aaa-aaa-aaa";
-getEpisodeFeatures(theEpisode);
+getEpisodeFeatures(theEpisode,memid);
 
 
 async function createFeature(){

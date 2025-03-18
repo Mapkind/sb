@@ -54,11 +54,27 @@ async function getLineFeatures(){
 
 async function getEpisodeFeatures(episode){
   const { data, error } = await supabase
-  .from('features_in_episodes')
-  .select()
-  .eq('eID',episode)
+  .from('features')
+  //.select('globalid, name, ')
+  .select(`
+    name,
+    globalid,
+    geom,
+    memid,
+    features_in_episodes!inner (
+    ),
+    episodes!inner (
+      name, GlobalID
+    )
+  `)
+  .eq('features_in_episodes.eID',episode)
   console.log("Episode features: ", data);
 }
+
+/*,
+    episodes!inner (
+      GlobalID
+    )*/
 
 getMembers();
 getFeatures();

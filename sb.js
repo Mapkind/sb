@@ -20,13 +20,13 @@ async function getFeatures(id){
     console.log("features: ", data);
 }
 
-async function getPointFeatures(){
+async function getPointFeatures(id){
     const { data, error } = await supabase
     .from('features')
     //.select('geom->geometry->type, ? (@ = fType)')
     .select()
-    //.not('globalid', 'eq', '111-111-111')
     .eq('fType','Point')
+    .eq('memid', id)
     console.log("Point features: ", data);
 }
 
@@ -74,11 +74,11 @@ var theEpisode = "aaa-aaa-aaa";
 getEpisodeFeatures(theEpisode,memid);
 
 
-async function createFeature(id){
+async function createFeature(){
     var uuid = self.crypto.randomUUID();
     const { data, error } = await supabase
   .from('features')
-  .insert({ memid: id, name: 'Pippin Place 2', globalid: uuid, fType: 'Point',  geom: {
+  .insert({ memid: memid, name: 'Pippin Place 2', globalid: uuid, fType: 'Point',  geom: {
     "type": "Feature",
     "properties": {
         "name": "Bear Sighting",
@@ -130,6 +130,6 @@ async function createFeature(id){
 
 var featurebutton = document.getElementById("featurebutton");
 
-featurebutton.addEventListener("click", createFeature(memid));
+featurebutton.addEventListener("click", createFeature);
 
 

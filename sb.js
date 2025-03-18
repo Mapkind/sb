@@ -40,8 +40,6 @@ async function getPointFeatures(){
     .select()
     //.not('globalid', 'eq', '111-111-111')
     .eq('fType','Point')
-    
-  
     console.log("Point features: ", data);
 }
 
@@ -51,15 +49,24 @@ async function getLineFeatures(){
   .select()
   .not('fType', 'eq', 'Point')
   //.eq('fType','Point')
-  
-
   console.log("Line features: ", data);
+}
+
+async function getEpisodeFeatures(episode){
+  const { data, error } = await supabase
+  .from('features_in_episodes')
+  .select()
+  .eq('eID',episode)
+  console.log("Episode features: ", data);
 }
 
 getMembers();
 getFeatures();
 getPointFeatures();
 getLineFeatures();
+
+var theEpisode = "aaa-aaa-aaa";
+getEpisodeFeatures(theEpisode);
 
 
 async function createFeature(){

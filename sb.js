@@ -39,15 +39,27 @@ async function getPointFeatures(){
     //.select('geom->geometry->type, ? (@ = fType)')
     .select()
     //.not('globalid', 'eq', '111-111-111')
-    .eq('fType','point')
+    .eq('fType','Point')
     
   
     console.log("Point features: ", data);
 }
 
+async function getLineFeatures(){
+  const { data, error } = await supabase
+  .from('features')
+  .select()
+  .not('fType', 'eq', 'Point')
+  //.eq('fType','Point')
+  
+
+  console.log("Line features: ", data);
+}
+
 getMembers();
 getFeatures();
 getPointFeatures();
+getLineFeatures();
 
 
 async function createFeature(){

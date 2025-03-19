@@ -27,7 +27,12 @@ async function getPointFeatures(id){
     .select('geom->geometry, geom->properties, geom->type, geom->source')
     .eq('fType','Point')
     .eq('memid', id)
-    console.log("Point features: ", data);
+
+    var pointCollection = {
+      type: 'FeatureCollection',
+      features: data
+      };
+    console.log("Point feature collection: ", pointCollection);
 }
 
 async function getLineFeatures(id){

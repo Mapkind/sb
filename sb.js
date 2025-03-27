@@ -3,6 +3,70 @@ let supabase = createClient('https://bmqblboosmqzcfdwnopt.supabase.co', 'eyJhbGc
 
 console.log('Supabase Instance: ', supabase);
 
+const memid = "mem_cm2j78k6s0xg40srphrfpegh2";
+const sbkey = "7df7444d-0f73-4c82-99cb-10866c95de61";
+
+var raw = JSON.stringify({"memID":memid});
+// create a JSON object with parameters for API call and store in a variable
+var requestOptions = {
+    method: 'POST',
+    //mode: 'no-cors',
+    //headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+};
+
+fetch('https://hook.us1.make.com/tqixz7mlqvtyohuw7iutf97vofyshven',requestOptions)
+.then(response => response.json())
+.then(result => memberAuthTemp(result))
+.catch(error => console.log('error', error));
+
+function memberAuthTemp(r){
+  console.log("Supabase sbkey update result: ",r);
+}
+
+function memberAuth(sb){
+  console.log("sbkey change: ",sb);
+
+  var raw = JSON.stringify({"memID":memid, "sbkey":sbkey});
+  // create a JSON object with parameters for API call and store in a variable
+  var requestOptions = {
+      method: 'POST',
+      //mode: 'no-cors',
+      //headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+  };
+  
+  fetch('https://hook.us1.make.com/y2pmos4t4vqv4eq87sh0uhiypz4u16oi',requestOptions)
+  .then(response => response.json())
+  .then(result => memberAuthResult(result))
+  .catch(error => console.log('error', error));
+}
+
+function memberAuthResult(r){
+  console.log("Member Auth Result: ",r);
+  const memAuth = r.access;
+
+  async function getFeatures(id){
+    if(memAuth){
+      const { data, error } = await supabase
+      .from('features')
+      .select()
+      //.not('globalid', 'eq', '111-111-111')
+      .eq('memid', id)
+      //.eq('sbkey', key)
+      console.log("features: ", data);
+    }
+    else{
+      console.log("Not authorized to get features.")
+    }
+  }
+
+  getFeatures(memid);
+}
+
+
 async function getMembers(){
     const { data, error } = await supabase
     .from('members')
@@ -11,14 +75,7 @@ async function getMembers(){
     console.log("members: ", data);
 }
 
-async function getFeatures(id){
-    const { data, error } = await supabase
-    .from('features')
-    .select()
-    //.not('globalid', 'eq', '111-111-111')
-    .eq('memid', id)
-    console.log("features: ", data);
-}
+
 
 async function getPointFeatures(id){
     const { data, error } = await supabase
@@ -70,8 +127,7 @@ async function getEpisodeFeatures(episode, id){
     )*/
 
 getMembers();
-const memid = "mem_2";
-getFeatures(memid);
+
 getPointFeatures(memid);
 getLineFeatures(memid);
 

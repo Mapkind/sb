@@ -4,9 +4,9 @@ let supabase = createClient('https://bmqblboosmqzcfdwnopt.supabase.co', 'eyJhbGc
 console.log('Supabase Instance: ', supabase);
 
 const memid = "mem_cm2j78k6s0xg40srphrfpegh2";
-const sbkey = "7df7444d-0f73-4c82-99cb-10866c95de61";
+const sbkey = "20f78bee-32fd-47bf-8eae-b253cf7cafba";
 
-var raw = JSON.stringify({"memID":memid});
+/*var raw = JSON.stringify({"memID":memid});
 // create a JSON object with parameters for API call and store in a variable
 var requestOptions = {
     method: 'POST',
@@ -23,10 +23,7 @@ fetch('https://hook.us1.make.com/tqixz7mlqvtyohuw7iutf97vofyshven',requestOption
 
 function memberAuthTemp(r){
   console.log("Supabase sbkey update result: ",r);
-}
-
-function memberAuth(sb){
-  console.log("sbkey change: ",sb);
+}*/
 
   var raw = JSON.stringify({"memID":memid, "sbkey":sbkey});
   // create a JSON object with parameters for API call and store in a variable
@@ -42,14 +39,14 @@ function memberAuth(sb){
   .then(response => response.json())
   .then(result => memberAuthResult(result))
   .catch(error => console.log('error', error));
-}
+
 
 function memberAuthResult(r){
   console.log("Member Auth Result: ",r);
   const memAuth = r.access;
 
   async function getFeatures(id){
-    if(memAuth){
+    if(memAuth == true){
       const { data, error } = await supabase
       .from('features')
       .select()
@@ -131,54 +128,52 @@ getMembers();
 getPointFeatures(memid);
 getLineFeatures(memid);
 
-var theEpisode = "aaa-aaa-aaa";
+var theEpisode = "111-111-111";
 getEpisodeFeatures(theEpisode,memid);
 
 
 async function createFeature(){
     var uuid = self.crypto.randomUUID();
     const { data, error } = await supabase
-  .from('features')
-  .insert({ memid: memid, name: 'Pippin Place 2', globalid: uuid, fType: 'Point',  geom: {
-    "type": "Feature",
-    "properties": {
-        "name": "Bear Sighting",
-        "desc": "This was our 5th bear sighting during our 2022 trip to CO.",
-        "time": "2022-10-04T11:40:50Z",
-        "sym": "bear",
-        "point_type": "wildlife",
-        "vehicleCapacity": "",
-        "sheltered": "",
-        "waterside": "",
-        "epicCamp": "",
-        "campsiteFee": "",
-        "campsiteLocation": "",
-        "campsiteClass": "",
-        "notes": "This was our 5th bear sighting during our 2022 trip to CO.",
-        "title": "Bear Sighting",
-        "state": "",
-        "GlobalID": "6d5758e6-05a7-4aa2-9f70-db6fef653ba4",
-        "OBJECTID": "",
-        "video_episode": "",
-        "video_episode2": "",
-        "video_episode3": "",
-        "archived": "yes",
-        "route": [],
-        "trailerFriendly": "",
-        "folder": [],
-        "episode": []
-    },
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-            -107.66666841063493,
-            38.01706149466503,
-            2485
-        ]
-    },
-    "source": "Point_Source"
-}})
-  .select()
+    .from('features')
+    .insert({ memid: memid, name: 'Gollum Gulch', globalid: uuid, fType: 'Point',  geom: {
+      "type": "Feature",
+      "properties": {
+          "name": "Gollum Gulch",
+          "desc": "",
+          "point_type": "naturalWonder",
+          "vehicleCapacity": "",
+          "sheltered": "",
+          "waterside": "",
+          "epicCamp": "",
+          "campsiteFee": "",
+          "campsiteLocation": "",
+          "campsiteClass": "",
+          "notes": "",
+          "title": "Gollum Gulch",
+          "state": "",
+          "GlobalID": "6d5758e6-05a7-4aa2-9f70-db6fef653ba4",
+          "OBJECTID": "",
+          "video_episode": "",
+          "video_episode2": "",
+          "video_episode3": "",
+          "archived": "",
+          "route": [],
+          "trailerFriendly": "",
+          "folder": [],
+          "episode": []
+      },
+      "geometry": {
+          "type": "Point",
+          "coordinates": [
+              -107.66666841063493,
+              38.01706149466503,
+              2485
+          ]
+      },
+      "source": "Point_Source"
+  }})
+    .select()
 
   if(!error){
     console.log("Feature created:", data);

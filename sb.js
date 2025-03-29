@@ -45,6 +45,32 @@ function memberAuthResult(r){
   console.log("Member Auth Result: ",r);
   const memAuth = r.access;
 
+  if(memAuth == true){
+    async function createSBuser(){
+      const { data, error } = await supabase.auth.signInAnonymously({
+        options: {
+          data: {"msid": memid}
+        }
+      })
+      console.log("auth data: ",data);
+      getFeatures(memid);
+    }
+
+    async function getSBsession(){
+      //const { data, error } = await supabase.auth.getSession()
+      const { data, error } = await supabase.auth.refreshSession()
+      const { session, user } = data
+      if(error){
+        createSBuser();
+      }
+      else{
+        console.log("session data: ",data);
+        getFeatures(memid);
+      }
+    }
+    getSBsession();
+  }
+
   async function getFeatures(id){
     if(memAuth == true){
       const { data, error } = await supabase
@@ -60,7 +86,7 @@ function memberAuthResult(r){
     }
   }
 
-  getFeatures(memid);
+  
 }
 
 
@@ -136,7 +162,7 @@ async function createFeature(){
     var uuid = self.crypto.randomUUID();
     const { data, error } = await supabase
     .from('features')
-    .insert({ memid: memid, name: 'Gollum Gulch', globalid: uuid, fType: 'Point',  geom: {
+    .insert({ memid: memid, name: 'Auth Lake 2', globalid: uuid, fType: 'Point',  geom: {
       "type": "Feature",
       "properties": {
           "name": "Gollum Gulch",

@@ -253,7 +253,7 @@ async function createFolder(form){
   .eq('memID', memid)
 
 if(!error){
-  console.log("Episode created:", data);
+  console.log("Folder created:", data);
 }
 else{
   console.log("error: ", error);

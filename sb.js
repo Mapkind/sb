@@ -218,8 +218,13 @@ async function createEpisode(){
   var uuid = self.crypto.randomUUID();
   const { data, error } = await supabase
   .from('episodes')
-  .insert({ memID: memid, name: 'S1E1', GlobalID: uuid})
-  .select()
+  .insert({ memID: memid, name: 'S1E3', GlobalID: uuid})
+  .select(`
+    name,
+    GlobalID,
+    memID
+  `)
+  .eq('memID', memid)
 
 if(!error){
   console.log("Episode created:", data);

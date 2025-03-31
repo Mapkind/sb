@@ -214,4 +214,19 @@ var featurebutton = document.getElementById("featurebutton");
 
 featurebutton.addEventListener("click", createFeature);
 
+async function createEpisode(){
+  var uuid = self.crypto.randomUUID();
+  const { data, error } = await supabase
+  .from('features')
+  .insert({ memid: memid, name: 'S1E1', GlobalID: uuid})
+  .select()
+
+if(!error){
+  console.log("Episode created:", data);
+}
+else{
+  console.log("error: ", error);
+}
+}
+
 

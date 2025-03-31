@@ -149,8 +149,9 @@ async function getEpisodeFeatures(episode, id){
       GlobalID
     )*/
 
-getMembers();
 
+
+getMembers();
 getPointFeatures(memid);
 getLineFeatures(memid);
 
@@ -238,24 +239,65 @@ var episodebutton = document.getElementById("episodebutton");
 
 episodebutton.addEventListener("click", createEpisode);
 
-async function createFolder(form){
-  //var folderName = document.getElementById("folderName").value;
-  console.log ("Folder Name: ", form.name);
-  var uuid = self.crypto.randomUUID();
+// Create form
+const folderForm = document.createElement('form');
+
+// Create input fields
+const folderName = document.createElement('input');
+folderName.setAttribute('type', 'text');
+folderName.setAttribute('name', 'name');
+folderName.setAttribute('placeholder', 'Folder Name');
+
+// Create submit button
+const submitButton = document.createElement('input');
+submitButton.setAttribute('type', 'submit');
+submitButton.setAttribute('value', '+ Folder');
+
+// Add elements to form
+folderForm.appendChild(folderName);
+folderForm.appendChild(submitButton);
+
+// Append form to the document body
+document.body.appendChild(folderForm);
+
+// Add event listener for form submission
+folderForm.addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent default form submission
+  //const name = folderName.value;
+  console.log('Folder Name:', folderName.value);
+  // Handle form data here, e.g., send it to a server
+
+  async function createFolder(){
+    var uuid = self.crypto.randomUUID();
+    const { data, error } = await supabase
+    .from('folders')
+    .insert({ memID: memid, name: folderName.value, GlobalID: uuid})
+    .select(`
+      name,
+      GlobalID,
+      memID
+    `)
+    .eq('memID', memid)
+  
+  if(!error){
+    console.log("Folder created:", data);
+    getFolders();
+  }
+  else{
+    console.log("error: ", error);
+  }
+  }
+
+  createFolder();
+
+});
+
+async function getFolders(){
   const { data, error } = await supabase
   .from('folders')
-  .insert({ memID: memid, name: form.name, GlobalID: uuid})
-  .select(`
-    name,
-    GlobalID,
-    memID
-  `)
+  .select()
   .eq('memID', memid)
+  console.log("Folders: ", data);
+}
 
-if(!error){
-  console.log("Folder created:", data);
-}
-else{
-  console.log("error: ", error);
-}
-}
+getFolders();

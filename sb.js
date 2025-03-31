@@ -237,3 +237,25 @@ else{
 var episodebutton = document.getElementById("episodebutton");
 
 episodebutton.addEventListener("click", createEpisode);
+
+async function createFolder(form){
+  //var folderName = document.getElementById("folderName").value;
+  console.log ("Folder Name: ", form.name);
+  var uuid = self.crypto.randomUUID();
+  const { data, error } = await supabase
+  .from('folders')
+  .insert({ memID: memid, name: form.name, GlobalID: uuid})
+  .select(`
+    name,
+    GlobalID,
+    memID
+  `)
+  .eq('memID', memid)
+
+if(!error){
+  console.log("Episode created:", data);
+}
+else{
+  console.log("error: ", error);
+}
+}

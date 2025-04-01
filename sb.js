@@ -328,6 +328,7 @@ async function getFolders(){
       folder.style.display = 'flex';
       //folder.style.alignItems = 'center';
       folder.style.marginTop = '10px';
+      folder.style.marginBottom = '5px';
   
       var folderImage = document.createElement('img');
       folderImage.src = 'icons/folder.svg';
@@ -341,6 +342,12 @@ async function getFolders(){
       folderNameDiv.style.paddingLeft = '10px';
       folderNameDiv.style.alignItems = 'center';
       folder.appendChild(folderNameDiv);
+
+      var shareImage = document.createElement('img');
+      shareImage.src = 'icons/send-2.svg';
+      shareImage.width = 12;
+      shareImage.style.marginLeft = 130;
+      folder.appendChild(shareImage);
 
       const subFolderForm = document.createElement('form');
       subFolderForm.style.display = 'flex';

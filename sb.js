@@ -251,7 +251,7 @@ folderName.setAttribute('placeholder', 'Folder Name');
 // Create submit button
 const submitButton = document.createElement('input');
 submitButton.setAttribute('type', 'submit');
-submitButton.setAttribute('value', '+ Folder');
+submitButton.setAttribute('value', 'Add Folder');
 
 // Add elements to form
 folderForm.appendChild(folderName);
@@ -298,6 +298,74 @@ async function getFolders(){
   .select()
   .eq('memID', memid)
   console.log("Folders: ", data);
+  if(document.getElementById('folderList')){
+    while (folderList.hasChildNodes()) {
+      folderList.removeChild(folderList.firstChild);
+    }
+  }
+  else{
+    const folderList = document.createElement('div');
+    folderList.setAttribute('id', 'folderList');
+    folderList.style.flexDirection = 'column';
+    document.body.appendChild(folderList);
+  }
+
+  for (var i = 0; i < data.length; i++) {
+    if(!data[i].parent){
+      var folderContainer = document.createElement('div');
+      folderContainer.style.flexDirection = 'column';
+      folderContainer.setAttribute('id', data[i].GlobalID);
+
+      var folder = document.createElement('div');
+      folder.style.display = 'flex';
+      //folder.style.alignItems = 'center';
+      folder.style.marginTop = '10px';
+  
+      var folderImage = document.createElement('img');
+      folderImage.src = 'icons/folder.svg';
+      folderImage.width = 18;
+      folder.appendChild(folderImage);
+  
+      var folderName = data[i].name;
+      var folderNameDiv = document.createElement('div');
+      folderNameDiv.style.height = 14;
+      folderNameDiv.innerText = folderName;
+      folderNameDiv.style.paddingLeft = '10px';
+      folderNameDiv.style.alignItems = 'center';
+      folder.appendChild(folderNameDiv);
+  
+      folderContainer.appendChild(folder);
+      folderList.appendChild(folderContainer);
+    }
+  }
+
+  for (var i = 0; i < data.length; i++) {
+    if(data[i].parent){
+      var parent = document.getElementById(data[i].parent);
+      
+      var subFolder = document.createElement('div');
+      subFolder.style.display = 'flex';
+      subFolder.style.alignItems = 'center';
+      subFolder.style.marginTop= '2px';
+      subFolder.style.marginLeft= '28px';
+      subFolder.setAttribute('id', data[i].GlobalID);
+  
+      var folderImage = document.createElement('img');
+      folderImage.src = 'icons/folder.svg';
+      folderImage.width = 18;
+      subFolder.appendChild(folderImage);
+  
+      var folderName = data[i].name;
+      var folderNameDiv = document.createElement('div');
+      folderNameDiv.innerText = folderName;
+      folderNameDiv.style.height = 14;
+      folderNameDiv.style.paddingLeft = '10px';
+      subFolder.appendChild(folderNameDiv);
+  
+      parent.appendChild(subFolder);
+    }
+  }
+
 }
 
 getFolders();

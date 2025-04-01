@@ -471,4 +471,9 @@ async function getFeaturesInFolders(){
   .eq('features_in_folders.memID',memid)
   .eq('memid', memid)
   console.log("Features in Folders: ", data);
+
+  //Add features to folders
+
+
+
 }

@@ -347,6 +347,7 @@ async function getFolders(){
       subFolderForm.style.flexDirection = 'row';
       subFolderForm.style.marginLeft = 28;
       subFolderForm.style.marginBottom = 0;
+      subFolderForm.setAttribute('id', data[i].GlobalID);
 
 // Create input fields
 const subFolderName = document.createElement('input');
@@ -370,15 +371,16 @@ subFolderForm.appendChild(submitButton2);
 // Add event listener for form submission
 subFolderForm.addEventListener('submit', function(event) {
   event.preventDefault(); // Prevent default form submission
+  console.log("Parent ID: ",event.target.id);
   //const name = folderName.value;
   console.log('Folder Name:', subFolderName.value);
   // Handle form data here, e.g., send it to a server
 
-  async function createFolder(){
+  async function createSubFolder(){
     var uuid = self.crypto.randomUUID();
     const { data, error } = await supabase
     .from('folders')
-    .insert({ memID: memid, name: subFolderName.value, GlobalID: uuid, parent: data[i].GlobalID})
+    .insert({ memID: memid, name: subFolderName.value, GlobalID: uuid, parent: event.target.id})
     .select(`
       name,
       GlobalID,
@@ -395,7 +397,7 @@ subFolderForm.addEventListener('submit', function(event) {
   }
   }
 
-  createFolder();
+  createSubFolder();
 
 });
   

@@ -356,62 +356,62 @@ async function getFolders(){
       subFolderForm.style.marginBottom = 0;
       subFolderForm.setAttribute('id', data[i].GlobalID);
 
-// Create input fields
-const subFolderName = document.createElement('input');
-subFolderName.setAttribute('type', 'text');
-subFolderName.setAttribute('name', 'name');
-subFolderName.setAttribute('placeholder', 'Subfolder Name');
+      // Create input fields
+      const subFolderName = document.createElement('input');
+      subFolderName.setAttribute('type', 'text');
+      subFolderName.setAttribute('name', 'name');
+      subFolderName.setAttribute('placeholder', 'Subfolder Name');
 
-// Create submit button
-const submitButton2 = document.createElement('input');
-submitButton2.setAttribute('type', 'submit');
-submitButton2.setAttribute('value', '+');
+      // Create submit button
+      const submitButton2 = document.createElement('input');
+      submitButton2.setAttribute('type', 'submit');
+      submitButton2.setAttribute('value', '+');
 
-// Add elements to form
-subFolderForm.appendChild(subFolderName);
-subFolderForm.appendChild(submitButton2);
-//folderForm.appendChild(submitButtonImage);
+      // Add elements to form
+      subFolderForm.appendChild(subFolderName);
+      subFolderForm.appendChild(submitButton2);
+      //folderForm.appendChild(submitButtonImage);
 
-// Append form to the document body
-//document.body.appendChild(subFolderForm);
+      // Append form to the document body
+      //document.body.appendChild(subFolderForm);
 
-// Add event listener for form submission
-subFolderForm.addEventListener('submit', function(event) {
-  event.preventDefault(); // Prevent default form submission
-  console.log("Parent ID: ",event.target.id);
-  //const name = folderName.value;
-  console.log('Folder Name:', subFolderName.value);
-  // Handle form data here, e.g., send it to a server
+      // Add event listener for form submission
+      subFolderForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+        console.log("Parent ID: ",event.target.id);
+        //const name = folderName.value;
+        console.log('Folder Name:', subFolderName.value);
+        // Handle form data here, e.g., send it to a server
 
-  async function createSubFolder(){
-    var uuid = self.crypto.randomUUID();
-    const { data, error } = await supabase
-    .from('folders')
-    .insert({ memID: memid, name: subFolderName.value, GlobalID: uuid, parent: event.target.id})
-    .select(`
-      name,
-      GlobalID,
-      memID
-    `)
-    .eq('memID', memid)
-  
-  if(!error){
-    console.log("Folder created:", data);
-    getFolders();
-  }
-  else{
-    console.log("error: ", error);
-  }
-  }
+        async function createSubFolder(){
+          var uuid = self.crypto.randomUUID();
+          const { data, error } = await supabase
+          .from('folders')
+          .insert({ memID: memid, name: subFolderName.value, GlobalID: uuid, parent: event.target.id})
+          .select(`
+            name,
+            GlobalID,
+            memID
+          `)
+          .eq('memID', memid)
+        
+        if(!error){
+          console.log("Folder created:", data);
+          getFolders();
+        }
+        else{
+          console.log("error: ", error);
+        }
+        }
 
-  createSubFolder();
+        createSubFolder();
 
-});
-  
+      });
       
       folderContainer.appendChild(folder);
       folderContainer.appendChild(subFolderForm);
       folderList.appendChild(folderContainer);
+
     }
   }
 
@@ -446,6 +446,29 @@ subFolderForm.addEventListener('submit', function(event) {
     }
   }
 
+  getFeaturesInFolders();
+
 }
 
 getFolders();
+
+async function getFeaturesInFolders(){
+  const { data, error } = await supabase
+  .from('features')
+  //.select()
+  .select(`
+    name,
+    globalid,
+    geom,
+    memid,
+    fType,
+    features_in_folders!inner (
+    ),
+    folders!inner (
+      name, GlobalID, parent
+    )
+  `)
+  .eq('features_in_folders.memID',memid)
+  .eq('memid', memid)
+  console.log("Features in Folders: ", data);
+}

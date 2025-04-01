@@ -241,6 +241,8 @@ episodebutton.addEventListener("click", createEpisode);
 
 // Create form
 const folderForm = document.createElement('form');
+folderForm.style.display = 'flex';
+folderForm.style.flexDirection = 'row';
 
 // Create input fields
 const folderName = document.createElement('input');
@@ -251,11 +253,17 @@ folderName.setAttribute('placeholder', 'Folder Name');
 // Create submit button
 const submitButton = document.createElement('input');
 submitButton.setAttribute('type', 'submit');
-submitButton.setAttribute('value', 'Add Folder');
+submitButton.setAttribute('value', '+');
+
+var submitButtonImage = document.createElement('img');
+submitButtonImage.src = 'icons/folder-add.svg';
+submitButtonImage.width = 24;
+//submitButton.appendChild(submitButtonImage);
 
 // Add elements to form
 folderForm.appendChild(folderName);
 folderForm.appendChild(submitButton);
+//folderForm.appendChild(submitButtonImage);
 
 // Append form to the document body
 document.body.appendChild(folderForm);
@@ -333,8 +341,67 @@ async function getFolders(){
       folderNameDiv.style.paddingLeft = '10px';
       folderNameDiv.style.alignItems = 'center';
       folder.appendChild(folderNameDiv);
+
+      const subFolderForm = document.createElement('form');
+      subFolderForm.style.display = 'flex';
+      subFolderForm.style.flexDirection = 'row';
+      subFolderForm.style.marginLeft = 28;
+      subFolderForm.style.marginBottom = 0;
+
+// Create input fields
+const subFolderName = document.createElement('input');
+subFolderName.setAttribute('type', 'text');
+subFolderName.setAttribute('name', 'name');
+subFolderName.setAttribute('placeholder', 'Subfolder Name');
+
+// Create submit button
+const submitButton2 = document.createElement('input');
+submitButton2.setAttribute('type', 'submit');
+submitButton2.setAttribute('value', '+');
+
+// Add elements to form
+subFolderForm.appendChild(subFolderName);
+subFolderForm.appendChild(submitButton2);
+//folderForm.appendChild(submitButtonImage);
+
+// Append form to the document body
+//document.body.appendChild(subFolderForm);
+
+// Add event listener for form submission
+subFolderForm.addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent default form submission
+  //const name = folderName.value;
+  console.log('Folder Name:', subFolderName.value);
+  // Handle form data here, e.g., send it to a server
+
+  async function createFolder(){
+    var uuid = self.crypto.randomUUID();
+    const { data, error } = await supabase
+    .from('folders')
+    .insert({ memID: memid, name: subFolderName.value, GlobalID: uuid, parent: data[i].GlobalID})
+    .select(`
+      name,
+      GlobalID,
+      memID
+    `)
+    .eq('memID', memid)
   
+  if(!error){
+    console.log("Folder created:", data);
+    getFolders();
+  }
+  else{
+    console.log("error: ", error);
+  }
+  }
+
+  createFolder();
+
+});
+  
+      
       folderContainer.appendChild(folder);
+      folderContainer.appendChild(subFolderForm);
       folderList.appendChild(folderContainer);
     }
   }
@@ -342,13 +409,16 @@ async function getFolders(){
   for (var i = 0; i < data.length; i++) {
     if(data[i].parent){
       var parent = document.getElementById(data[i].parent);
+
+      var subFolderContainer = document.createElement('div');
+      subFolderContainer.setAttribute('id', data[i].GlobalID);
       
       var subFolder = document.createElement('div');
       subFolder.style.display = 'flex';
       subFolder.style.alignItems = 'center';
       subFolder.style.marginTop= '2px';
       subFolder.style.marginLeft= '28px';
-      subFolder.setAttribute('id', data[i].GlobalID);
+      
   
       var folderImage = document.createElement('img');
       folderImage.src = 'icons/folder.svg';
@@ -362,7 +432,8 @@ async function getFolders(){
       folderNameDiv.style.paddingLeft = '10px';
       subFolder.appendChild(folderNameDiv);
   
-      parent.appendChild(subFolder);
+      subFolderContainer.appendChild(subFolder);
+      parent.appendChild(subFolderContainer);
     }
   }
 

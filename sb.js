@@ -89,7 +89,6 @@ function memberAuthResult(r){
   
 }
 
-
 async function getMembers(){
     const { data, error } = await supabase
     .from('members')
@@ -97,8 +96,6 @@ async function getMembers(){
   
     console.log("members: ", data);
 }
-
-
 
 async function getPointFeatures(id){
     const { data, error } = await supabase
@@ -474,6 +471,43 @@ async function getFeaturesInFolders(){
 
   //Add features to folders
 
+  for (var i = 0; i < data.length; i++) {
+    if(data[i].folders.length > 1){
+      //loop over folders
+      for (var f = 0; f < data[i].folders.length; f++) {
+        var folderID = data[i].folders[f].GlobalID;
+        addFeatureToFolder(folderID,data[i]);
+      }
+    }
+    else{
+      var folderID = data[i].folders[0].GlobalID;
+      addFeatureToFolder(folderID,data[i]);
+    }
+  }
 
+  function addFeatureToFolder(id,feature){
+    var targetFolderContainer = document.getElementById(id);
+    var featureNameDiv = document.createElement('div');
+    featureNameDiv.style.display = "flex";
+    featureNameDiv.style.marginLeft = 56;
+    if(feature.fType == "Point"){
+      var featureIcon = document.createElement('img');
+      featureIcon.src = "icons/location.svg";
+      featureIcon.width = 14;
+      featureNameDiv.appendChild(featureIcon)
+    }
+    else{
+      var featureIcon = document.createElement('img');
+      featureIcon.src = "icons/routing.svg";
+      featureIcon.width = 14;
+      featureNameDiv.appendChild(featureIcon)
+    }
+    var featureNameText = document.createElement('div');
+    featureNameText.style.marginLeft = 5;
+    featureNameText.innerText = feature.name;
+
+    featureNameDiv.appendChild(featureNameText);
+    targetFolderContainer.appendChild(featureNameDiv);
+  }
 
 }

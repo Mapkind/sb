@@ -6,25 +6,31 @@ console.log('Supabase Instance: ', supabase);
 const memid = "mem_cm2j78k6s0xg40srphrfpegh2";
 const sbkey = "20f78bee-32fd-47bf-8eae-b253cf7cafba";
 
-/*var raw = JSON.stringify({"memID":memid});
-// create a JSON object with parameters for API call and store in a variable
-var requestOptions = {
-    method: 'POST',
-    //mode: 'no-cors',
-    //headers: myHeaders,
-    body: raw,
-    redirect: 'follow'
-};
+//////////////////////////////////ADD MAP//////////////////////////////////
 
-fetch('https://hook.us1.make.com/tqixz7mlqvtyohuw7iutf97vofyshven',requestOptions)
-.then(response => response.json())
-.then(result => memberAuthTemp(result))
-.catch(error => console.log('error', error));
+mapboxgl.accessToken = 'pk.eyJ1IjoibWFwa2luZCIsImEiOiJjbTQ3MGh1eTcwMGljMnFvc21ubjNqZ2xtIn0.82rbPi7HCJppPKcI6NU-GQ';//defaut token!!!! CHANGE
 
-function memberAuthTemp(r){
-  console.log("Supabase sbkey update result: ",r);
-}*/
+const mapDiv = document.createElement('div');
+mapDiv.setAttribute('id', 'mapDiv');
+mapDiv.style.width = '100%';
+mapDiv.style.height = 800;
+mapDiv.style.marginBottom = 60;
+document.body.appendChild(mapDiv);
 
+let map;
+
+map = new mapboxgl.Map({
+  container: 'mapDiv',
+  style: 'mapbox://styles/mapkind/cltczfy6c00ok01o8bslg9acr?fresh=true',//MoW Outdoors
+  center: [-107.67153, 38.02283],//Ouray 
+  zoom: 14,
+  attributionControl: false,
+  logoPosition: 'top-left',
+  preserveDrawingBuffer: true,
+  hash: "map"
+});
+
+map.on('load', function() {
   var raw = JSON.stringify({"memID":memid, "sbkey":sbkey});
   // create a JSON object with parameters for API call and store in a variable
   var requestOptions = {
@@ -96,7 +102,7 @@ async function getMembers(){
   
     console.log("members: ", data);
 }
-
+let pointCollection;
 async function getPointFeatures(id){
     const { data, error } = await supabase
     .from('features')
@@ -105,11 +111,12 @@ async function getPointFeatures(id){
     .eq('fType','Point')
     .eq('memid', id)
 
-    var pointCollection = {
+    pointCollection = {
       type: 'FeatureCollection',
       features: data
       };
     console.log("Point feature collection: ", pointCollection);
+    map.getSource('Point_Source').setData(pointCollection);
 }
 
 async function getLineFeatures(id){
@@ -514,8 +521,123 @@ async function getFeaturesInFolders(){
 
 ////////////////////////ADD DATA TO MAP///////////////////////////////
 
+map.addSource("Point_Source", {
+  type: "geojson",
+  data: '',
+  generateId: true,
+});
 
+map.addLayer({
+  id: "myPoints",
+  type: "symbol",
+  source: "Point_Source",
+  //filter: ['==', '$type', 'Point'],
+  filter: ["all", ["!=", "$type", "LineString"], ["!=", "$type", "Polygon"], ['!=', 'archived', 'yes']],
+  layout: {
+  //'visibility': 'none',
+  'icon-allow-overlap': true,
+  'text-allow-overlap': true,
+  'icon-size': 1,
+  'text-field': '{name}',
+  'text-anchor': "bottom",
+  'text-font': [
+    'literal',
+    ['DIN Offc Pro Bold', 'Arial Unicode MS Regular']
+    ],
+  'text-size': 12,
+  'text-offset': [0,-1.5],
+  "symbol-sort-key":["get","vehicleCapacity"],
+  'icon-image': [
+    'case',
+    ['==', ['get', 'point_type'], 'obstacle'],
+    'caution-circle-border',
+    ['==', ['get', 'point_type'], 'naturalWonder'],
+    'naturalwonder-circle-border',
+    ['==', ['get', 'point_type'], 'historic'],
+    'historic-circle-border',
+    ['==', ['get', 'point_type'], 'beach'],
+    'beach-circle-border',
+    ['==', ['get', 'point_type'], 'art'],
+    'art-circle-border',
+    ['==', ['get', 'point_type'], 'coffee'],
+    'cafe-circle-border',
+    ['==', ['get', 'point_type'], 'repairShop'],
+    'car-repair-circle-border',
+    ['==', ['get', 'point_type'], 'cultural'],
+    'cultural-circle-border',
+    ['==', ['get', 'point_type'], 'watersource'],
+    'drinking-water-circle-border',
+    ['==', ['get', 'point_type'], 'fuelStation'],
+    'fuel-circle-border',
+    ['==', ['get', 'point_type'], 'grocery'],
+    'grocery-circle-border',
+    ['==', ['get', 'point_type'], 'medical'],
+    'hospital-circle-border',
+    ['==', ['get', 'point_type'], 'hotspring'],
+    'hot-spring-circle-border',
+    ['==', ['get', 'point_type'], 'laundromat'],
+    'laundry-circle-border',
+    ['==', ['get', 'point_type'], 'lodging'],
+    'lodging-circle-border',
+    ['==', ['get', 'point_type'], 'park'],
+    'park-circle-border',
+    ['==', ['get', 'point_type'], 'parking'],
+    'parking-circle-border',
+    ['==', ['get', 'point_type'], 'picnic'],
+    'picnic-site-circle-border',
+    ['==', ['get', 'point_type'], 'poi'],
+    'poi-circle-border',
+    ['==', ['get', 'point_type'], 'restaurant'],
+    'restaurant-circle-border',
+    ['==', ['get', 'point_type'], 'retailStore'],
+    'shop-circle-border',
+    ['==', ['get', 'point_type'], 'toilet'],
+    'toilet-circle-border',
+    ['==', ['get', 'point_type'], 'trailhead'],
+    'trailhead-circle-border',
+    ['==', ['get', 'point_type'], 'trash'],
+    'trash-circle-border',
+    ['==', ['get', 'point_type'], 'overlook'],
+    'viewpoint-circle-border',
+    ['==', ['get', 'point_type'], 'wildlife'],
+    'wildlife-circle-border',
+    ['==', ['get', 'point_type'], 'potentialCampsite'],
+    'campsite-potential-border',
+    ['==', ['get', 'point_type'], 'campsite'],
+    'campsite-confirmed-border',
+    'yellow-marker' // default yellow-marker
+  ]
+},
+paint: {
+'text-opacity': {
+  "stops": [
+    [0, 0],
+    [1, 0],
+    [2, 0],
+    [3, 0],
+    [4, 0],
+    [5, 0],
+    [6, 0],
+    [7, 0],
+    [8, 0],
+    [9, 0],
+    [10, 0],
+    [10.1, 0],
+    [10.2, 0],
+    [10.3, 0],
+    [10.4, 0],
+    [10.5, 0],
+    [11, 1]
+  ]
+},
+'text-color': '#2c2c2c',
+'text-halo-color': '#f2ede2',
+'text-halo-width': 2,
+}
+});
 
 ////////////////////////UPLOAD DATA///////////////////////////////////
 
 
+
+});

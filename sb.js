@@ -836,7 +836,7 @@ inputFile.addEventListener("change", function(ev) {
             console.log("error: ", error);
           }
         }
-
+//umu
         createFeature(geojsonFile.features[i]);
 
         }

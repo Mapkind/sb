@@ -281,6 +281,24 @@ featureName.setAttribute('type', 'text');
 featureName.setAttribute('name', 'name');
 featureName.setAttribute('placeholder', 'Feature Name');
 
+const featureType = document.createElement('input');
+featureType.setAttribute('type', 'text');
+featureType.setAttribute('id', 'featureType');
+featureType.setAttribute('hidden', true);
+featureType.setAttribute('placeholder', 'Feature Type');
+
+const featurePointType = document.createElement('input');
+featurePointType.setAttribute('type', 'text');
+featurePointType.setAttribute('id', 'pointType');
+featurePointType.setAttribute('placeholder', 'Point Type');
+featurePointType.style.marginTop = 10;
+
+const featureLineType = document.createElement('input');
+featureLineType.setAttribute('type', 'text');
+featureLineType.setAttribute('id', 'lineType');
+featureLineType.setAttribute('placeholder', 'Line Type');
+featureLineType.style.marginTop = 10;
+
 // Create submit button
 const featureSubmitButton = document.createElement('input');
 featureSubmitButton.style.marginTop = 20;
@@ -289,6 +307,9 @@ featureSubmitButton.setAttribute('value', 'Update Feature');
 
 // Add elements to form
 featureForm.appendChild(featureName);
+featureForm.appendChild(featureType);
+featureForm.appendChild(featurePointType);
+featureForm.appendChild(featureLineType);
 featureForm.appendChild(featureSubmitButton);
 
 // Append form to the document body

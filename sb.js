@@ -12,6 +12,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoibWFwa2luZCIsImEiOiJjbTQ3MGh1eTcwMGljMnFvc21ub
 
 const mapDiv = document.createElement('div');
 mapDiv.setAttribute('id', 'mapDiv');
+mapDiv.style.display = "flex";
 mapDiv.style.width = '100%';
 mapDiv.style.height = 700;
 mapDiv.style.marginBottom = 60;
@@ -230,6 +231,76 @@ async function createFeature(){
 var featurebutton = document.getElementById("featurebutton");
 
 featurebutton.addEventListener("click", createFeature);
+
+async function updateFeature(){
+  const { data, error } = await supabase
+  .from('users')
+  .update({
+    address: {
+      street: 'Melrose Place',
+      postcode: 90210
+    }
+  })
+  .eq('address->postcode', 90210)
+  .select()
+
+  if(!error){
+    console.log("Feature updated:", data);
+    //getFeatures();
+  }
+  else{
+    console.log("error: ", error);
+  }
+}
+
+const featureMenu = document.createElement('div');
+featureMenu.style.position = "relative";
+featureMenu.style.display = "flex";
+featureMenu.style.backgroundColor = "white";
+featureMenu.style.height = 600;
+//featureMenu.style.width = '300px';
+featureMenu.style.marginLeft = 10;
+featureMenu.style.marginTop = 40;
+//featureMenu.style.marginBottom = 50;
+featureMenu.style.paddingLeft = 30;
+featureMenu.style.paddingRight = 30;
+featureMenu.style.paddingTop = 30;
+mapDiv.appendChild(featureMenu);
+
+// Create form
+const featureForm = document.createElement('form');
+//featureForm.style.height = '700px';
+//featureForm.style.width = '300px';
+featureForm.style.display = 'flex';
+featureForm.style.flexDirection = 'column';
+
+// Create input fields
+const featureName = document.createElement('input');
+featureName.setAttribute('type', 'text');
+featureName.setAttribute('name', 'name');
+featureName.setAttribute('placeholder', 'Feature Name');
+
+// Create submit button
+const featureSubmitButton = document.createElement('input');
+featureSubmitButton.style.marginTop = 20;
+featureSubmitButton.setAttribute('type', 'submit');
+featureSubmitButton.setAttribute('value', 'Update Feature');
+
+// Add elements to form
+featureForm.appendChild(featureName);
+featureForm.appendChild(featureSubmitButton);
+
+// Append form to the document body
+featureMenu.appendChild(featureForm);
+
+// Add event listener for form submission
+featureForm.addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent default form submission
+  //const name = folderName.value;
+  console.log('Feature Name:', featureName.value);
+  // Handle form data here, e.g., send it to a server
+
+});
 
 async function createEpisode(){
   var uuid = self.crypto.randomUUID();

@@ -812,38 +812,46 @@ inputFile.addEventListener("change", function(ev) {
         var geojsonFile = JSON.parse(readerResult);
         console.log("geojsonFile: ",geojsonFile);
 
-        for (var i = 0; i < geojsonFile.features.length; i++) {
+        let uploadArray = [];
 
-          async function createFeature(theFeature){
-            var theSource;
-            if(theFeature.geometry.type == 'Point'){
-              theSource = "Point_Source";
-            }
-            else{
-              theSource = "Data_Source";
-            }
-            var uuid = self.crypto.randomUUID();
-            const { data, error } = await supabase
-            .from('features')
-            .insert({ memid: memid, source: theFeature.source, globalid: uuid, properties: theFeature.properties,  geometry: theFeature.geometry})
-            //.select()
-        
-          if(!error){
-            console.log("Feature created:", data);
-            //getFeatures();
+        for (var i = 0; i < geojsonFile.features.length; i++) {
+          var theFeature = geojsonFile.features[i];
+
+          var theSource;
+          if(theFeature.geometry.type == 'Point'){
+            theSource = "Point_Source";
           }
           else{
-            console.log("error: ", error);
+            theSource = "Data_Source";
           }
-        }
-        
-        createFeature(geojsonFile.features[i]);
+
+          var uuid = self.crypto.randomUUID();
+
+          var feature = {memid: memid, source: theSource, globalid: uuid, properties: theFeature.properties,  geometry: theFeature.geometry};
+
+          uploadArray.push(feature);
 
         }
 
-        getPointFeatures(memid);
-        getLineFeatures(memid);
-        //getFeatures();
+        async function uploadFeatures(array){
+
+          const { data, error } = await supabase
+          .from('features')
+          .insert(array)
+          //.select()
+      
+        if(!error){
+          console.log("Features created:", data);
+          getPointFeatures(memid);
+          getLineFeatures(memid);
+          //getFeatures();
+        }
+        else{
+          console.log("error: ", error);
+        }
+      }
+      
+      uploadFeatures(uploadArray);
 
       }
 

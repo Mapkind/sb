@@ -15,6 +15,7 @@ mapDiv.setAttribute('id', 'mapDiv');
 mapDiv.style.display = "flex";
 mapDiv.style.width = '100%';
 mapDiv.style.height = 700;
+mapDiv.style.alignItems = 'center';
 mapDiv.style.marginBottom = 60;
 document.body.appendChild(mapDiv);
 
@@ -260,7 +261,7 @@ featureMenu.style.backgroundColor = "white";
 featureMenu.style.height = 600;
 //featureMenu.style.width = '300px';
 featureMenu.style.marginLeft = 10;
-featureMenu.style.marginTop = 40;
+//featureMenu.style.marginTop = 40;
 //featureMenu.style.marginBottom = 50;
 featureMenu.style.paddingLeft = 30;
 featureMenu.style.paddingRight = 30;

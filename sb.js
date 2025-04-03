@@ -10,14 +10,20 @@ const sbkey = "20f78bee-32fd-47bf-8eae-b253cf7cafba";
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwa2luZCIsImEiOiJjbTQ3MGh1eTcwMGljMnFvc21ubjNqZ2xtIn0.82rbPi7HCJppPKcI6NU-GQ';//defaut token!!!! CHANGE
 
+const mapContainer = document.createElement('div');
+mapContainer.setAttribute('id', 'mapContainer');
+mapContainer.style.display = "flex";
+mapContainer.style.width = '100%';
+mapContainer.style.height = 700;
+mapContainer.style.alignItems = 'center';
+mapContainer.style.marginBottom = 60;
+document.body.appendChild(mapContainer);
+
 const mapDiv = document.createElement('div');
 mapDiv.setAttribute('id', 'mapDiv');
-mapDiv.style.display = "flex";
 mapDiv.style.width = '100%';
 mapDiv.style.height = 700;
-mapDiv.style.alignItems = 'center';
-mapDiv.style.marginBottom = 60;
-document.body.appendChild(mapDiv);
+mapContainer.appendChild(mapDiv);
 
 let map;
 
@@ -255,18 +261,18 @@ async function updateFeature(){
 }
 
 const featureMenu = document.createElement('div');
-featureMenu.style.position = "relative";
+featureMenu.style.position = "absolute";
 featureMenu.style.display = "flex";
 featureMenu.style.backgroundColor = "white";
 featureMenu.style.height = 600;
 //featureMenu.style.width = '300px';
-//featureMenu.style.marginLeft = 10;
+featureMenu.style.marginLeft = 10;
 //featureMenu.style.marginTop = 40;
 //featureMenu.style.marginBottom = 50;
 featureMenu.style.paddingLeft = 30;
 featureMenu.style.paddingRight = 30;
 featureMenu.style.paddingTop = 30;
-mapDiv.appendChild(featureMenu);
+mapContainer.appendChild(featureMenu);
 
 // Create form
 const featureForm = document.createElement('form');

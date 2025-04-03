@@ -102,30 +102,41 @@ async function getMembers(){
   
     console.log("members: ", data);
 }
+
 let pointCollection;
 async function getPointFeatures(id){
     const { data, error } = await supabase
     .from('features')
-    //.select('geom->geometry->type, ? (@ = fType)')
-    .select('geom->geometry, geom->properties, geom->type, geom->source')
-    .eq('fType','Point')
+    .select('geometry, properties, type, source')
+    .eq('geometry->>type','Point')
     .eq('memid', id)
 
     pointCollection = {
       type: 'FeatureCollection',
       features: data
       };
+
     console.log("Point feature collection: ", pointCollection);
+
     map.getSource('Point_Source').setData(pointCollection);
 }
 
+let lineCollection;
 async function getLineFeatures(id){
   const { data, error } = await supabase
   .from('features')
-  .select()
-  .not('fType', 'eq', 'Point')
+  .select('geometry, properties, type, source')
+  .not('geometry->>type', 'eq', 'Point')
   .eq('memid',id)
-  console.log("Line features: ", data);
+
+  lineCollection = {
+    type: 'FeatureCollection',
+    features: data
+    };
+
+  console.log("Line feature collection: ", lineCollection);
+
+  map.getSource('Data_Source').setData(lineCollection);
 }
 
 async function getEpisodeFeatures(episode, id){
@@ -135,7 +146,8 @@ async function getEpisodeFeatures(episode, id){
   .select(`
     name,
     globalid,
-    geom,
+    geometry,
+    properties,
     memid,
     features_in_episodes!inner (
     ),
@@ -463,7 +475,8 @@ async function getFeaturesInFolders(){
   .select(`
     name,
     globalid,
-    geom,
+    geometry,
+    properties,
     memid,
     fType,
     features_in_folders!inner (
@@ -497,7 +510,7 @@ async function getFeaturesInFolders(){
     var featureNameDiv = document.createElement('div');
     featureNameDiv.style.display = "flex";
     featureNameDiv.style.marginLeft = 56;
-    if(feature.fType == "Point"){
+    if(feature.geometry.type == "Point"){
       var featureIcon = document.createElement('img');
       featureIcon.src = "icons/location.svg";
       featureIcon.width = 14;
@@ -526,6 +539,107 @@ map.addSource("Point_Source", {
   data: '',
   generateId: true,
 });
+
+map.addSource("Data_Source", {
+  type: "geojson",
+  data: '',
+  generateId: true,
+});
+
+map.addLayer({
+  id: "myTracksBG",
+  type: "line",
+  minzoom: 3,
+  source: "Data_Source",
+  filter: ["all", ["!=", "$type", "Point"], ["!=", "$type", "Polygon"], ['!=', 'archived', 'yes']],
+  layout: {
+    'line-join': 'round',
+    'line-cap': 'round'
+    },
+    'paint': {
+      'line-color': [
+        'case',
+        ['==', ['get', 'track_type'], 'offroad'],
+        'black',
+        ['==', ['get', 'track_type'], 'scenicDrive'],
+        'black',
+        ['==', ['get', 'track_type'], ''],
+        'black',
+        'white'
+      ],
+      'line-width': 6,
+      'line-opacity': 1
+    }
+},
+//firstSymbolId
+);
+
+map.addLayer({
+  id: "myTracksFG",
+  type: "line",
+  minzoom: 3,
+  source: "Data_Source",
+  filter: ["all", ["!=", "$type", "Point"], ["!=", "$type", "Polygon"], ['!=', 'archived', 'yes']],
+  layout: {
+    'line-join': 'round',
+    'line-cap': 'round'
+    },
+    'paint': {
+      //'line-color': 'white',
+      'line-width': 3,
+      'line-opacity': 1,
+      "line-color": [
+        'case',
+        ['==', ['get', 'track_type'], 'offroad'],
+        'white',
+        ['==', ['get', 'track_type'], 'connector'],
+        'black',
+        ['==', ['get', 'track_type'], 'scenicDrive'],
+        'gray',
+        ['==', ['get', 'track_type'], 'hiking'],
+        'red',
+        ['==', ['get', 'track_type'], 'boat'],
+        'blue',
+        ['==', ['get', 'track_type'], 'atvutv'],
+        'purple',
+        ['==', ['get', 'track_type'], 'horse'],
+        'brown',
+        ['==', ['get', 'track_type'], 'biking'],
+        'green',
+        ['==', ['get', 'track_type'], 'motorcycle'],
+        'black',
+        '#ebef61' // default yellow
+      ],
+      "line-dasharray": [
+        "match", ["get", "track_type"],
+        'hiking', ["literal", [0.2, 2]],
+        'atvutv', ["literal", [0.2, 2]],
+        'motorcycle', ["literal", [0.2, 2]],
+        ["literal", [1,0]]
+      ]
+    }
+},
+//firstSymbolId
+);
+
+map.addLayer({
+id: "myTracks",
+type: "line",
+minzoom: 3,
+source: "Data_Source",
+filter: ["all", ["!=", "$type", "Point"], ["!=", "$type", "Polygon"], ['!=', 'archived', 'yes']],
+layout: {
+'line-join': 'round',
+'line-cap': 'round'
+},
+'paint': {
+  'line-color': 'white',
+  'line-width': 8,
+  'line-opacity': .01
+}
+},
+//firstSymbolId
+);
 
 map.addLayer({
   id: "myPoints",

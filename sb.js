@@ -59,7 +59,7 @@ function memberAuthResult(r){
         }
       })
       console.log("auth data: ",data);
-      getFeatures(memid);
+      //getFeatures(memid);
     }
 
     async function getSBsession(){
@@ -71,7 +71,7 @@ function memberAuthResult(r){
       }
       else{
         console.log("session data: ",data);
-        getFeatures(memid);
+        //getFeatures(memid);
       }
     }
     getSBsession();
@@ -815,6 +815,7 @@ inputFile.addEventListener("change", function(ev) {
         let uploadArray = [];
 
         for (var i = 0; i < geojsonFile.features.length; i++) {
+
           var theFeature = geojsonFile.features[i];
 
           var theSource;
@@ -851,6 +852,7 @@ inputFile.addEventListener("change", function(ev) {
         }
       }
       
+      console.log("uploadArray: ", uploadArray);
       uploadFeatures(uploadArray);
 
       }

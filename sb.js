@@ -13,7 +13,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoibWFwa2luZCIsImEiOiJjbTQ3MGh1eTcwMGljMnFvc21ub
 const mapDiv = document.createElement('div');
 mapDiv.setAttribute('id', 'mapDiv');
 mapDiv.style.width = '100%';
-mapDiv.style.height = 800;
+mapDiv.style.height = 700;
 mapDiv.style.marginBottom = 60;
 document.body.appendChild(mapDiv);
 

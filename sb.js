@@ -752,6 +752,102 @@ paint: {
 
 ////////////////////////UPLOAD DATA///////////////////////////////////
 
+let inputFile = document.getElementById("input_file");
 
+let pointPropertyArray = ['name','point_type','vehicleCapacity','sheltered','waterside','epicCamp','campsiteFee','campsiteLocation','campsiteClass','notes','title','state','GlobalID','OBJECTID','video_episode','video_episode2','video_episode3','archived','route','trailerFriendly'];
+//console.log("pointPorpertyArray: ",pointPropertyArray);
+
+let linePropertyArray = ['name','track_type','track_difficulty','track_surface','vehicle_requirement','coordTimes','time_stamp','fullSizeFriendly','notes','title','state','GlobalID','OBJECTID','video_episode','video_episode2','video_episode3','archived','route','trailerFriendlyTrack'];
+//console.log("linePropertyArray: ",linePropertyArray);
+
+inputFile.addEventListener("change", function(ev) {
+  //console.log("A file has been added!");
+
+  var theName = ev.target.value.toLowerCase();
+  //console.log('theName: ', theName);
+
+  let extension = theName.substring(theName.lastIndexOf('.') + 1);
+  console.log("extension: ", extension);
+
+  let fileName = theName.split(".");
+  fileName = fileName[0].replace("c:\\fakepath\\", "");
+  //console.log('File name: ', fileName);
+
+  
+
+  let file = inputFile.files[0];
+
+  console.log("File: ",file);
+
+  var imageReader = new FileReader();
+
+  console.log("imageReader: ",imageReader);
+
+  //image turned to base64-encoded Data URI.
+  //let dataURL = imageReader.readAsDataURL(file);
+  //console.log("dataURL: ", dataURL);
+  imageReader.name = file.name;//get the image's name
+  imageReader.size = file.size; //get the image's size
+  let fileType;
+  fileType = file.type;
+
+  console.log("fileType: ",fileType);
+
+  if(fileType == 'image/png' || fileType == 'image/jpeg'){
+      //Geocode image
+  }
+  else{
+
+    console.log("Not an IMAGE");
+    
+      let reader = new FileReader();
+      
+      reader.readAsText(file);
+
+      reader.onload = function() {
+
+        let readerResult = reader.result;
+        //console.log("Reader result: ",readerResult);
+
+        var geojsonFile = JSON.parse(readerResult);
+        console.log("geojsonFile: ",geojsonFile);
+
+        for (var i = 0; i < geojsonFile.features.length; i++) {
+
+          async function createFeature(theFeature){
+            var theSource;
+            if(theFeature.geometry.type == 'Point'){
+              theSource = "Point_Source";
+            }
+            else{
+              theSource = "Data_Source";
+            }
+            var uuid = self.crypto.randomUUID();
+            const { data, error } = await supabase
+            .from('features')
+            .insert({ memid: memid, source: theFeature.source, globalid: uuid, properties: theFeature.properties,  geometry: theFeature.geometry})
+            //.select()
+        
+          if(!error){
+            console.log("Feature created:", data);
+            //getFeatures();
+          }
+          else{
+            console.log("error: ", error);
+          }
+        }
+
+        createFeature(geojsonFile.features[i]);
+
+        }
+
+        getPointFeatures(memid);
+        getLineFeatures(memid);
+        //getFeatures();
+
+      }
+
+  }
+});
 
 });

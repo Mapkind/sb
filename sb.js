@@ -25,6 +25,13 @@ mapDiv.style.width = '100%';
 mapDiv.style.height = 700;
 mapContainer.appendChild(mapDiv);
 
+const spinner = document.createElement('img');
+spinner.src = 'icons/spinner.svg';
+spinner.style.display = "none";
+spinner.style.width = "100%";
+spinner.style.position = "absolute";
+mapContainer.appendChild(spinner);
+
 let map;
 
 map = new mapboxgl.Map({
@@ -356,6 +363,8 @@ featureForm.addEventListener('submit', function(event) {
 featureForm.addEventListener('submit', function(event) {
   event.preventDefault(); // Prevent default form submission
 
+  spinner.style.display = "flex";
+
   async function updateFeature(){
     const theFeature = selectedFeatures[0];
     console.log("Updating theFeature: ",theFeature);
@@ -435,6 +444,7 @@ featureForm.addEventListener('submit', function(event) {
         if(updateFeatureInCollection){
           updateFeatureInCollection.properties = updatedProperties;
           map.getSource('Point_Source').setData(pointCollection);
+          spinner.style.display = "none";
         }
 
       }
@@ -445,8 +455,8 @@ featureForm.addEventListener('submit', function(event) {
         if(updateFeatureInCollection){
           updateFeatureInCollection.properties = updatedProperties;
           map.getSource('Data_Source').setData(lineCollection);
+          spinner.style.display = "none";
         }
-        //getLineFeatures(memid);
       }
     }
     else{

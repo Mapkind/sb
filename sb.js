@@ -239,24 +239,47 @@ var featurebutton = document.getElementById("featurebutton");
 
 featurebutton.addEventListener("click", createFeature);
 
-async function updateFeature(){
-  const { data, error } = await supabase
-  .from('users')
-  .update({
-    address: {
-      street: 'Melrose Place',
-      postcode: 90210
-    }
-  })
-  .eq('address->postcode', 90210)
-  .select()
+map.on('mousemove', function (e) {
+  var features = map.queryRenderedFeatures(e.point, {
+    layers: ['myPoints','myTracks']
+  });
+    map.getCanvas().style.cursor = features.length
+    ? 'pointer'
+    : '';
+})
 
-  if(!error){
-    console.log("Feature updated:", data);
-    //getFeatures();
+map.on('click', function(e){
+  selectFeature(e);
+});
+
+let selectedFeatures;
+
+async function selectFeature(coordinates){
+
+  selectedFeatures = map.queryRenderedFeatures(coordinates.point, {
+    layers: ['myPoints', 'myTracks']
+  });
+
+  console.log("selected feature(s): ",selectedFeatures);
+
+
+  if(selectedFeatures.length){
+
+    featureName.value = selectedFeatures[0].properties.name;
+
+    if(selectedFeatures[0].source == "Point_Source"){
+      featurePointType.value = selectedFeatures[0].properties.point_type;
+      featureLineType.value = "";
+    }
+    else{
+      featureLineType.value = selectedFeatures[0].properties.track_type;
+      featurePointType.value = "";
+    }
   }
   else{
-    console.log("error: ", error);
+    featureName.value = "";
+    featurePointType.value = "";
+    featureLineType.value = "";
   }
 }
 
@@ -330,51 +353,94 @@ featureForm.addEventListener('submit', function(event) {
 
 });
 
-map.on('mousemove', function (e) {
-  var features = map.queryRenderedFeatures(e.point, {
-    layers: ['myPoints','myTracks']
-  });
-    map.getCanvas().style.cursor = features.length
-    ? 'pointer'
-    : '';
-})
+featureForm.addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent default form submission
 
-map.on('click', function(e){
-  selectFeature(e);
-});
-
-let features;
-
-async function selectFeature(coordinates){
-
-  features = map.queryRenderedFeatures(coordinates.point, {
-    layers: ['myPoints', 'myTracks']
-  });
-
-  console.log("selected feature(s): ",features);
-
-
-  if(features.length){
-
-    featureName.value = features[0].properties.name;
-
-    if(features[0].source == "Point_Source"){
-      featurePointType.value = features[0].properties.point_type;
-      featureLineType.value = "";
+  async function updateFeature(){
+    const theFeature = selectedFeatures[0];
+    console.log("Updating theFeature: ",theFeature);
+    let updatedProperties;
+    if(theFeature.source == "Point_Source"){
+      updatedProperties = {
+        "GlobalID": theFeature.properties.GlobalID,
+        "state": theFeature.properties.state,
+        "title": featureName.value,
+        "name": featureName.value,
+        "notes": theFeature.properties.notes,
+        "folder": theFeature.properties.folder,
+        "point_type": featurePointType.value,
+        "campsiteClass": theFeature.properties.campsiteClass,
+        "campsiteLocation": theFeature.properties.campsiteLocation,
+        "campsiteFee": theFeature.properties.campsiteFee,
+        "archived": theFeature.properties.archived,
+        "epicCamp": theFeature.properties.epicCamp,
+        "waterside": theFeature.properties.waterside,
+        "trailerFriendly": theFeature.properties.trailerFriendly,
+        "sheltered": theFeature.properties.sheltered,
+        "vehicleCapacity": theFeature.properties.vehicleCapacity,
+        "route": theFeature.properties.route,
+        "episode": theFeature.properties.episode
+      };
     }
     else{
-      featureLineType.value = features[0].properties.track_type;
-      featurePointType.value = "";
+      updatedProperties = {
+        "GlobalID": theFeature.properties.GlobalID,
+        "title": featureName.value,
+        "name": featureName.value,
+        "notes": theFeature.properties.notes,
+        "track_type": featureLineType.value,
+        "distance": theFeature.properties.distance,
+        "total_ascent": theFeature.properties.total_ascent,
+        "total_descent": theFeature.properties.total_descent,
+        "stopped_time": theFeature.properties.stopped_time,
+        "total_time": theFeature.properties.total_time,
+        "average_speed": theFeature.properties.average_speed,
+        "moving_time": theFeature.properties.moving_time,
+        "moving_speed": theFeature.properties.moving_speed,
+        "folder": theFeature.properties.folder,
+        "state": theFeature.properties.state,
+        "track_surface": theFeature.properties.track_surface,
+        "track_difficulty": theFeature.properties.track_difficulty,
+        "vehicle_requirement": theFeature.properties.vehicle_requirement,
+        "Shape__Length": theFeature.properties.Shape__Length,
+        "archived": theFeature.properties.archived,
+        "route": theFeature.properties.route,
+        "fullSizeFriendly": theFeature.properties.fullSizeFriendly,
+        "trailerFriendlyTrack": theFeature.properties.trailerFriendlyTrack,
+        "coordTimes": theFeature.properties.coordTimes,
+        "episode": theFeature.properties.episode
+      }
+    }
+
+    console.log("updatedProperties: ",updatedProperties);
+
+    const { data, error } = await supabase
+    .from('features')
+    .update({
+      uDate: Date.now(),
+      properties: {updatedProperties}
+    })
+    .eq('globalid', theFeature.properties.GlobalID)
+    .eq('memid', memid)
+    .select()
+
+    if(!error){
+      console.log("Feature updated:", data);
+      if(theFeature.source == "Point_Source"){
+        getPointFeatures();
+      }
+      else{
+        getLineFeatures();
+      }
+    }
+    else{
+      console.log("error: ", error);
     }
   }
-  else{
-    featureName.value = "";
-    featurePointType.value = "";
-    featureLineType.value = "";
-  }
 
+  updateFeature(event);
 
-}
+});
 
 async function createEpisode(){
   var uuid = self.crypto.randomUUID();

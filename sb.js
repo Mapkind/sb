@@ -115,7 +115,7 @@ let pointCollection;
 async function getPointFeatures(id){
     const { data, error } = await supabase
     .from('features')
-    .select('geometry, properties, type, source')
+    .select('globalid, geometry, properties, type, source')
     .eq('geometry->>type','Point')
     .eq('memid', id)
 
@@ -287,12 +287,6 @@ featureName.setAttribute('type', 'text');
 featureName.setAttribute('name', 'name');
 featureName.setAttribute('placeholder', 'Feature Name');
 
-const featureType = document.createElement('input');
-featureType.setAttribute('type', 'text');
-featureType.setAttribute('id', 'featureType');
-featureType.setAttribute('hidden', true);
-featureType.setAttribute('placeholder', 'Feature Type');
-
 const featurePointType = document.createElement('input');
 featurePointType.setAttribute('type', 'text');
 featurePointType.setAttribute('id', 'pointType');
@@ -305,6 +299,12 @@ featureLineType.setAttribute('id', 'lineType');
 featureLineType.setAttribute('placeholder', 'Line Type');
 featureLineType.style.marginTop = 10;
 
+/*const featureType = document.createElement('input');
+featureType.setAttribute('type', 'text');
+featureType.setAttribute('id', 'featureType');
+featureType.setAttribute('hidden', true);*/
+
+
 // Create submit button
 const featureSubmitButton = document.createElement('input');
 featureSubmitButton.style.marginTop = 20;
@@ -313,7 +313,7 @@ featureSubmitButton.setAttribute('value', 'Update Feature');
 
 // Add elements to form
 featureForm.appendChild(featureName);
-featureForm.appendChild(featureType);
+//featureForm.appendChild(featureType);
 featureForm.appendChild(featurePointType);
 featureForm.appendChild(featureLineType);
 featureForm.appendChild(featureSubmitButton);
@@ -329,6 +329,52 @@ featureForm.addEventListener('submit', function(event) {
   // Handle form data here, e.g., send it to a server
 
 });
+
+map.on('mousemove', function (e) {
+  var features = map.queryRenderedFeatures(e.point, {
+    layers: ['myPoints','myTracks']
+  });
+    map.getCanvas().style.cursor = features.length
+    ? 'pointer'
+    : '';
+})
+
+map.on('click', function(e){
+  selectFeature(e);
+});
+
+let features;
+
+async function selectFeature(coordinates){
+
+  features = map.queryRenderedFeatures(coordinates.point, {
+    layers: ['myPoints', 'myTracks']
+  });
+
+  console.log("selected feature(s): ",features);
+
+
+  if(features.length){
+
+    featureName.value = features[0].properties.name;
+
+    if(features[0].source == "Point_Source"){
+      featurePointType.value = features[0].properties.point_type;
+      featureLineType.value = "";
+    }
+    else{
+      featureLineType.value = features[0].properties.track_type;
+      featurePointType.value = "";
+    }
+  }
+  else{
+    featureName.value = "";
+    featurePointType.value = "";
+    featureLineType.value = "";
+  }
+
+
+}
 
 async function createEpisode(){
   var uuid = self.crypto.randomUUID();
@@ -927,7 +973,7 @@ inputFile.addEventListener("change", function(ev) {
 
           var uuid = self.crypto.randomUUID();
 
-          var feature = {memid: memid, source: theSource, globalid: uuid, properties: theFeature.properties,  geometry: theFeature.geometry};
+          var feature = {memid: memid, source: theSource, globalid: theFeature.properties.GlobalID, properties: theFeature.properties,  geometry: theFeature.geometry};
 
           uploadArray.push(feature);
 

@@ -133,7 +133,7 @@ let lineCollection;
 async function getLineFeatures(id){
   const { data, error } = await supabase
   .from('features')
-  .select('geometry, properties, type, source')
+  .select('globalid, geometry, properties, type, source')
   .not('geometry->>type', 'eq', 'Point')
   .eq('memid',id)
 
@@ -380,7 +380,7 @@ featureForm.addEventListener('submit', function(event) {
         "vehicleCapacity": theFeature.properties.vehicleCapacity,
         "route": theFeature.properties.route,
         "episode": theFeature.properties.episode
-      };
+      }
     }
     else{
       updatedProperties = {
@@ -417,8 +417,9 @@ featureForm.addEventListener('submit', function(event) {
     const { data, error } = await supabase
     .from('features')
     .update({
-      uDate: Date.now(),
-      properties: {updatedProperties}
+      //name: "Mog Rim"
+      uDate: new Date().toISOString(),
+      properties: updatedProperties
     })
     .eq('globalid', theFeature.properties.GlobalID)
     .eq('memid', memid)
@@ -427,10 +428,25 @@ featureForm.addEventListener('submit', function(event) {
     if(!error){
       console.log("Feature updated:", data);
       if(theFeature.source == "Point_Source"){
-        getPointFeatures();
+
+        const updateFeatureInCollection = pointCollection.features.find(({globalid}) => globalid===theFeature.properties.GlobalID);
+        console.log("updateFeatureInCollection: ", updateFeatureInCollection);
+
+        if(updateFeatureInCollection){
+          updateFeatureInCollection.properties = updatedProperties;
+          map.getSource('Point_Source').setData(pointCollection);
+        }
+
       }
       else{
-        getLineFeatures();
+        const updateFeatureInCollection = lineCollection.features.find(({globalid}) => globalid===theFeature.properties.GlobalID);
+        console.log("updateFeatureInCollection: ", updateFeatureInCollection);
+
+        if(updateFeatureInCollection){
+          updateFeatureInCollection.properties = updatedProperties;
+          map.getSource('Data_Source').setData(lineCollection);
+        }
+        //getLineFeatures(memid);
       }
     }
     else{

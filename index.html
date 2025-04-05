@@ -3,7 +3,69 @@
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css' rel='stylesheet' />
     <script type="module" src="./sb.js"></script>
     <script type="text/javascript" src="//cdn.jsdelivr.net/npm/filesaver.js@1.3.4/FileSaver.min.js"></script>
+
+    <style>
+        .multiselect-container {
+     position: relative;
+     width: 200px;
+    }
+   
+    .selected-options {
+     border: 1px solid #ccc;
+     padding: 5px;
+     cursor: pointer;
+    }
+   
+    .dropdown {
+     position: absolute;
+     top: 100%;
+     left: 0;
+     border: 1px solid #ccc;
+     display: none;
+     max-height: 200px;
+     overflow-y: auto;
+     background-color: #fff;
+     width: 100%;
+     z-index: 1;
+    }
+   
+    .dropdown.open {
+     display: block;
+    }
+   
+    .options {
+     list-style: none;
+     padding: 0;
+     margin: 0;
+    }
+   
+    .option {
+     padding: 5px;
+     cursor: pointer;
+    }
+   
+    .option:hover {
+     background-color: #f0f0f0;
+    }
+   
+    .has-submenu > label::after {
+     content: '>';
+     float: right;
+    }
+   
+    .submenu {
+     list-style: none;
+     padding-left: 20px;
+     display: none;
+    }
+   
+    .has-submenu input[type="checkbox"]:checked + .submenu {
+     display: block;
+    }
+   </style>
+
 </head>
+
 
 <body>
     <button type="button" id="featurebutton">Create Feature</button>
@@ -18,4 +80,36 @@
     <br>
     <br>
     <br>
+    <div class="multiselect-container" id = "folderMultiselect">
+        <div class="selected-options">
+        <span class="placeholder">Select options</span>
+        <ul class="selected-list"></ul>
+        </div>
+        <div class="dropdown">
+        <ul class="options">
+        <li class="option">
+        <input type="checkbox" id="option1" value="option1">
+        <label for="option1">Option 1</label>
+        </li>
+        <li class="option has-submenu">
+        <input type="checkbox" id="category1">
+        <label for="category1">Category 1</label>
+        <ul class="submenu">
+        <li class="option">
+        <input type="checkbox" id="option2" value="option2">
+        <label for="option2">Option 2</label>
+        </li>
+        <li class="option">
+        <input type="checkbox" id="option3" value="option3">
+        <label for="option3">Option 3</label>
+        </li>
+        </ul>
+        </li>
+        </ul>
+        </div>
+       </div>
+       <br>
+       <br>
+       <br>
 </body>
+

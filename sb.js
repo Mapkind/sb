@@ -487,8 +487,12 @@ featureForm.addEventListener('submit', function(event) {
 });
 
 let folders;
+let featureFolderCheckChangedArray = [];
+let addFeatureToFolderArray = [];
+let removeFeatureFromFolderArray = [];
 
 async function getFolders(){
+  featureFolderCheckChangedArray = [];
   const { data, error } = await supabase
   .from('folders')
   .select()
@@ -528,6 +532,18 @@ async function getFolders(){
       var folderCheck = document.createElement("input");
       folderCheck.setAttribute("type", "checkbox");
       folderCheck.setAttribute("id", data[i].GlobalID);
+
+      folderCheck.addEventListener("change", function(){
+        console.log("Checkbox clicked: ", this.checked + " | " + this.id);
+        var checkID = this.id;
+        if(featureFolderCheckChangedArray.includes(checkID)){
+          //feature already exists. skip.
+        }
+        else{
+          featureFolderCheckChangedArray.push(this.id);
+          console.log("featureFolderCheckChangedArray: ",featureFolderCheckChangedArray);
+        }
+      })
 
       folderSelectDiv.appendChild(folderCheck);
 
@@ -654,6 +670,18 @@ async function getFolders(){
       var subFolderCheck = document.createElement("input");
       subFolderCheck.setAttribute("type", "checkbox");
       subFolderCheck.setAttribute("id", data[i].GlobalID);
+
+      subFolderCheck.addEventListener("change", function(){
+        console.log("Checkbox clicked: ", this.checked + " | " + this.id);
+        var checkID = this.id;
+        if(featureFolderCheckChangedArray.includes(checkID)){
+          //feature already exists. skip.
+        }
+        else{
+          featureFolderCheckChangedArray.push(this.id);
+          console.log("featureFolderCheckChangedArray: ",featureFolderCheckChangedArray);
+        }
+      })
 
       subFolderSelectDiv.appendChild(subFolderCheck);
 

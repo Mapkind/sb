@@ -346,10 +346,28 @@ featureForm.appendChild(featureName);
 //featureForm.appendChild(featureType);
 featureForm.appendChild(featurePointType);
 featureForm.appendChild(featureLineType);
+
+
+/*const folderSelectForm = document.createElement('form');
+folderSelectForm.style.display = 'flex';
+folderSelectForm.style.flexDirection = 'column';*/
+
+const folderSelectContainer = document.createElement('div');
+folderSelectContainer.style.display = 'flex';
+folderSelectContainer.style.flexDirection = 'column';
+folderSelectContainer.style.marginTop = 10;
+folderSelectContainer.style.paddingTop = 5;
+folderSelectContainer.style.paddingLeft = 5;
+folderSelectContainer.style.paddingBottom = 5;
+folderSelectContainer.style.border = "1px solid grey";
+
+featureForm.appendChild(folderSelectContainer);
+
 featureForm.appendChild(featureSubmitButton);
 
 // Append form to the document body
 featureMenu.appendChild(featureForm);
+
 
 // Add event listener for form submission
 featureForm.addEventListener('submit', function(event) {
@@ -468,90 +486,7 @@ featureForm.addEventListener('submit', function(event) {
 
 });
 
-async function createEpisode(){
-  var uuid = self.crypto.randomUUID();
-  const { data, error } = await supabase
-  .from('episodes')
-  .insert({ memID: memid, name: 'S1E3', GlobalID: uuid})
-  .select(`
-    name,
-    GlobalID,
-    memID
-  `)
-  .eq('memID', memid)
-
-if(!error){
-  console.log("Episode created:", data);
-}
-else{
-  console.log("error: ", error);
-}
-}
-
-var episodebutton = document.getElementById("episodebutton");
-
-episodebutton.addEventListener("click", createEpisode);
-
-// Create form
-const folderForm = document.createElement('form');
-folderForm.style.display = 'flex';
-folderForm.style.flexDirection = 'row';
-
-// Create input fields
-const folderName = document.createElement('input');
-folderName.setAttribute('type', 'text');
-folderName.setAttribute('name', 'name');
-folderName.setAttribute('placeholder', 'Folder Name');
-
-// Create submit button
-const submitButton = document.createElement('input');
-submitButton.setAttribute('type', 'submit');
-submitButton.setAttribute('value', '+');
-
-var submitButtonImage = document.createElement('img');
-submitButtonImage.src = 'icons/folder-add.svg';
-submitButtonImage.width = 24;
-//submitButton.appendChild(submitButtonImage);
-
-// Add elements to form
-folderForm.appendChild(folderName);
-folderForm.appendChild(submitButton);
-//folderForm.appendChild(submitButtonImage);
-
-// Append form to the document body
-document.body.appendChild(folderForm);
-
-// Add event listener for form submission
-folderForm.addEventListener('submit', function(event) {
-  event.preventDefault(); // Prevent default form submission
-  //const name = folderName.value;
-  console.log('Folder Name:', folderName.value);
-  // Handle form data here, e.g., send it to a server
-
-  async function createFolder(){
-    var uuid = self.crypto.randomUUID();
-    const { data, error } = await supabase
-    .from('folders')
-    .insert({ memID: memid, name: folderName.value, GlobalID: uuid})
-    .select(`
-      name,
-      GlobalID,
-      memID
-    `)
-    .eq('memID', memid)
-  
-  if(!error){
-    console.log("Folder created:", data);
-    getFolders();
-  }
-  else{
-    console.log("error: ", error);
-  }
-  }
-
-  createFolder();
-
-});
+let folders;
 
 async function getFolders(){
   const { data, error } = await supabase
@@ -559,6 +494,7 @@ async function getFolders(){
   .select()
   .eq('memID', memid)
   console.log("Folders: ", data);
+  folders = data;
   if(document.getElementById('folderList')){
     while (folderList.hasChildNodes()) {
       folderList.removeChild(folderList.firstChild);
@@ -570,12 +506,44 @@ async function getFolders(){
     folderList.style.flexDirection = 'column';
     document.body.appendChild(folderList);
   }
+    while (folderSelectContainer.hasChildNodes()) {
+      folderSelectContainer.removeChild(folderSelectContainer.firstChild);
+    }
+
 
   for (var i = 0; i < data.length; i++) {
     if(!data[i].parent){
+      
+      /////////////FEATURE SELECT FOLDER MENU//////////////////
+
+      const folderSelect = document.createElement('div');
+      folderSelect.style.display = 'flex';
+      folderSelect.style.flexDirection = 'column';
+      folderSelect.setAttribute("id", data[i].GlobalID + '_select');
+
+      const folderSelectDiv = document.createElement('div');
+      folderSelectDiv.style.display = 'flex';
+      folderSelectDiv.style.flexDirection = 'row';
+
+      var folderCheck = document.createElement("input");
+      folderCheck.setAttribute("type", "checkbox");
+      folderCheck.setAttribute("id", data[i].GlobalID);
+
+      folderSelectDiv.appendChild(folderCheck);
+
+      var folderCheckLabel = document.createElement("div");
+      folderCheckLabel.innerText = data[i].name;
+
+      folderSelectDiv.appendChild(folderCheckLabel);
+
+      folderSelect.appendChild(folderSelectDiv);
+
+      folderSelectContainer.appendChild(folderSelect);
+
+      ///////////CREATE FOLDER MENU//////////////
       var folderContainer = document.createElement('div');
       folderContainer.style.flexDirection = 'column';
-      folderContainer.setAttribute('id', data[i].GlobalID);
+      folderContainer.setAttribute('id', data[i].GlobalID + '_create');
 
       var folder = document.createElement('div');
       folder.style.display = 'flex';
@@ -670,7 +638,33 @@ async function getFolders(){
 
   for (var i = 0; i < data.length; i++) {
     if(data[i].parent){
-      var parent = document.getElementById(data[i].parent);
+      var parentCreateFolder = document.getElementById(data[i].parent + '_create');
+      var parentSelectFolder = document.getElementById(data[i].parent + '_select');
+
+      const subFolderSelect = document.createElement('div');
+      subFolderSelect.style.display = 'flex';
+      subFolderSelect.style.flexDirection = 'column';
+      subFolderSelect.style.marginLeft= '16px';
+      subFolderSelect.setAttribute("id", data[i].GlobalID + '_select');
+
+      const subFolderSelectDiv = document.createElement('div');
+      subFolderSelectDiv.style.display = 'flex';
+      subFolderSelectDiv.style.flexDirection = 'row';
+
+      var subFolderCheck = document.createElement("input");
+      subFolderCheck.setAttribute("type", "checkbox");
+      subFolderCheck.setAttribute("id", data[i].GlobalID);
+
+      subFolderSelectDiv.appendChild(subFolderCheck);
+
+      var subFolderCheckLabel = document.createElement("div");
+      subFolderCheckLabel.innerText = data[i].name;
+
+      subFolderSelectDiv.appendChild(subFolderCheckLabel);
+
+      subFolderSelect.appendChild(subFolderSelectDiv);
+
+      parentSelectFolder.appendChild(subFolderSelect);
 
       var subFolderContainer = document.createElement('div');
       subFolderContainer.setAttribute('id', data[i].GlobalID);
@@ -695,7 +689,7 @@ async function getFolders(){
       subFolder.appendChild(folderNameDiv);
   
       subFolderContainer.appendChild(subFolder);
-      parent.appendChild(subFolderContainer);
+      parentCreateFolder.appendChild(subFolderContainer);
     }
   }
 
@@ -704,6 +698,93 @@ async function getFolders(){
 }
 
 getFolders();
+
+async function createEpisode(){
+  var uuid = self.crypto.randomUUID();
+  const { data, error } = await supabase
+  .from('episodes')
+  .insert({ memID: memid, name: 'S1E3', GlobalID: uuid})
+  .select(`
+    name,
+    GlobalID,
+    memID
+  `)
+  .eq('memID', memid)
+
+if(!error){
+  console.log("Episode created:", data);
+}
+else{
+  console.log("error: ", error);
+}
+}
+
+var episodebutton = document.getElementById("episodebutton");
+
+episodebutton.addEventListener("click", createEpisode);
+
+// Create form
+const folderForm = document.createElement('form');
+folderForm.style.display = 'flex';
+folderForm.style.flexDirection = 'row';
+
+// Create input fields
+const folderName = document.createElement('input');
+folderName.setAttribute('type', 'text');
+folderName.setAttribute('name', 'name');
+folderName.setAttribute('placeholder', 'Folder Name');
+
+// Create submit button
+const submitButton = document.createElement('input');
+submitButton.setAttribute('type', 'submit');
+submitButton.setAttribute('value', '+');
+
+var submitButtonImage = document.createElement('img');
+submitButtonImage.src = 'icons/folder-add.svg';
+submitButtonImage.width = 24;
+//submitButton.appendChild(submitButtonImage);
+
+// Add elements to form
+folderForm.appendChild(folderName);
+folderForm.appendChild(submitButton);
+//folderForm.appendChild(submitButtonImage);
+
+// Append form to the document body
+document.body.appendChild(folderForm);
+
+// Add event listener for form submission
+folderForm.addEventListener('submit', function(event) {
+  event.preventDefault(); // Prevent default form submission
+  //const name = folderName.value;
+  console.log('Folder Name:', folderName.value);
+  // Handle form data here, e.g., send it to a server
+
+  async function createFolder(){
+    var uuid = self.crypto.randomUUID();
+    const { data, error } = await supabase
+    .from('folders')
+    .insert({ memID: memid, name: folderName.value, GlobalID: uuid})
+    .select(`
+      name,
+      GlobalID,
+      memID
+    `)
+    .eq('memID', memid)
+  
+  if(!error){
+    console.log("Folder created:", data);
+    getFolders();
+  }
+  else{
+    console.log("error: ", error);
+  }
+  }
+
+  createFolder();
+
+});
+
+
 
 async function getFeaturesInFolders(){
   const { data, error } = await supabase
@@ -1097,4 +1178,56 @@ inputFile.addEventListener("change", function(ev) {
   }
 });
 
+});
+
+
+//////////////////////////////////////////////////////////////////
+
+const folderDropdownDiv = document.createElement('div');
+folderDropdownDiv.style.marginBottom = 60;
+document.body.appendChild(folderDropdownDiv);
+
+folderDropdownDiv.appendChild(document.getElementById("folderMultiselect"));
+
+const multiselectContainer = document.querySelector('.multiselect-container');
+const selectedOptions = document.querySelector('.selected-options');
+const dropdown = document.querySelector('.dropdown');
+const options = document.querySelectorAll('.option input[type="checkbox"]');
+const selectedList = document.querySelector('.selected-list');
+const placeholder = document.querySelector('.placeholder');
+
+selectedOptions.addEventListener('click', () => {
+ dropdown.classList.toggle('open');
+});
+
+options.forEach(option => {
+ option.addEventListener('change', () => {
+ updateSelectedList();
+ });
+});
+
+function updateSelectedList() {
+ selectedList.innerHTML = '';
+ let selectedCount = 0;
+
+ options.forEach(option => {
+ if (option.checked) {
+ const listItem = document.createElement('li');
+ listItem.textContent = document.querySelector(`label[for="${option.id}"]`).textContent;
+ selectedList.appendChild(listItem);
+ selectedCount++;
+ }
+ });
+
+ if (selectedCount > 0) {
+ placeholder.style.display = 'none';
+ } else {
+ placeholder.style.display = 'block';
+ }
+}
+
+document.addEventListener('click', (event) => {
+ if (!multiselectContainer.contains(event.target)) {
+ dropdown.classList.remove('open');
+ }
 });

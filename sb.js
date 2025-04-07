@@ -46,7 +46,7 @@ map = new mapboxgl.Map({
 });
 
 map.on('load', function() {
-  var raw = JSON.stringify({"memID":memid, "sbkey":sbkey});
+  var raw = JSON.stringify({"memid":memid, "sbkey":sbkey});
   // create a JSON object with parameters for API call and store in a variable
   var requestOptions = {
       method: 'POST',
@@ -159,7 +159,6 @@ async function getEpisodeFeatures(episode, id){
   .from('features')
   //.select('globalid, name, ')
   .select(`
-    name,
     globalid,
     geometry,
     properties,
@@ -167,17 +166,17 @@ async function getEpisodeFeatures(episode, id){
     features_in_episodes!inner (
     ),
     episodes!inner (
-      name, GlobalID
+      name, globalid
     )
   `)
-  .eq('features_in_episodes.eID',episode)
+  .eq('features_in_episodes.episodeid',episode)
   .eq('memid', id)
   console.log("Episode features: ", data);
 }
 
 /*,
     episodes!inner (
-      GlobalID
+      globalid
     )*/
 
 
@@ -194,7 +193,7 @@ async function createFeature(){
     var uuid = self.crypto.randomUUID();
     const { data, error } = await supabase
     .from('features')
-    .insert({ memid: memid, name: 'Auth Lake 2', globalid: uuid, fType: 'Point',  geom: {
+    .insert({ memid: memid, globalid: uuid, geom: {
       "type": "Feature",
       "properties": {
           "name": "Gollum Gulch",
@@ -210,7 +209,7 @@ async function createFeature(){
           "notes": "",
           "title": "Gollum Gulch",
           "state": "",
-          "GlobalID": "6d5758e6-05a7-4aa2-9f70-db6fef653ba4",
+          "globalid": "6d5758e6-05a7-4aa2-9f70-db6fef653ba4",
           "OBJECTID": "",
           "video_episode": "",
           "video_episode2": "",
@@ -389,7 +388,7 @@ featureForm.addEventListener('submit', function(event) {
     let updatedProperties;
     if(theFeature.source == "Point_Source"){
       updatedProperties = {
-        "GlobalID": theFeature.properties.GlobalID,
+        "globalid": theFeature.properties.globalid,
         "state": theFeature.properties.state,
         "title": featureName.value,
         "name": featureName.value,
@@ -411,7 +410,7 @@ featureForm.addEventListener('submit', function(event) {
     }
     else{
       updatedProperties = {
-        "GlobalID": theFeature.properties.GlobalID,
+        "globalid": theFeature.properties.globalid,
         "title": featureName.value,
         "name": featureName.value,
         "notes": theFeature.properties.notes,
@@ -445,10 +444,10 @@ featureForm.addEventListener('submit', function(event) {
     .from('features')
     .update({
       //name: "Mog Rim"
-      uDate: new Date().toISOString(),
+      udate: new Date().toISOString(),
       properties: updatedProperties
     })
-    .eq('globalid', theFeature.properties.GlobalID)
+    .eq('globalid', theFeature.properties.globalid)
     .eq('memid', memid)
     .select()
 
@@ -456,7 +455,7 @@ featureForm.addEventListener('submit', function(event) {
       console.log("Feature updated:", data);
       if(theFeature.source == "Point_Source"){
 
-        const updateFeatureInCollection = pointCollection.features.find(({globalid}) => globalid===theFeature.properties.GlobalID);
+        const updateFeatureInCollection = pointCollection.features.find(({globalid}) => globalid===theFeature.properties.globalid);
         console.log("updateFeatureInCollection: ", updateFeatureInCollection);
 
         if(updateFeatureInCollection){
@@ -467,7 +466,7 @@ featureForm.addEventListener('submit', function(event) {
 
       }
       else{
-        const updateFeatureInCollection = lineCollection.features.find(({globalid}) => globalid===theFeature.properties.GlobalID);
+        const updateFeatureInCollection = lineCollection.features.find(({globalid}) => globalid===theFeature.properties.globalid);
         console.log("updateFeatureInCollection: ", updateFeatureInCollection);
 
         if(updateFeatureInCollection){
@@ -496,7 +495,7 @@ async function getFolders(){
   const { data, error } = await supabase
   .from('folders')
   .select()
-  .eq('memID', memid)
+  .eq('memid', memid)
   console.log("Folders: ", data);
   folders = data;
   if(document.getElementById('folderList')){
@@ -523,7 +522,7 @@ async function getFolders(){
       const folderSelect = document.createElement('div');
       folderSelect.style.display = 'flex';
       folderSelect.style.flexDirection = 'column';
-      folderSelect.setAttribute("id", data[i].GlobalID + '_select');
+      folderSelect.setAttribute("id", data[i].globalid + '_select');
 
       const folderSelectDiv = document.createElement('div');
       folderSelectDiv.style.display = 'flex';
@@ -531,17 +530,40 @@ async function getFolders(){
 
       var folderCheck = document.createElement("input");
       folderCheck.setAttribute("type", "checkbox");
-      folderCheck.setAttribute("id", data[i].GlobalID);
+      folderCheck.setAttribute("id", data[i].globalid);
 
       folderCheck.addEventListener("change", function(){
         console.log("Checkbox clicked: ", this.checked + " | " + this.id);
         var checkID = this.id;
-        if(featureFolderCheckChangedArray.includes(checkID)){
-          //feature already exists. skip.
+        if(this.checked){
+          if(addFeatureToFolderArray.includes(checkID)){
+            //feature already exists. skip.
+          }
+          else{
+            addFeatureToFolderArray.push(checkID);
+          }
+          //If id in "remove from folder" array, remove it
+          if(removeFeatureFromFolderArray.includes(checkID)){
+            const index = removeFeatureFromFolderArray.indexOf(checkID);
+            if (index > -1) { // only splice array when item is found
+              removeFeatureFromFolderArray.splice(index, 1); // 2nd parameter means remove one item only
+            }
+          }
         }
         else{
-          featureFolderCheckChangedArray.push(this.id);
-          console.log("featureFolderCheckChangedArray: ",featureFolderCheckChangedArray);
+          if(removeFeatureFromFolderArray.includes(checkID)){
+            //feature already exists. skip.
+          }
+          else{
+            removeFeatureFromFolderArray.push(this.id);
+            console.log("removeFeatureFromFolderArray: ",removeFeatureFromFolderArray);
+          }
+          if(addFeatureToFolderArray.includes(checkID)){
+            const index = addFeatureToFolderArray.indexOf(checkID);
+            if (index > -1) { // only splice array when item is found
+              addFeatureToFolderArray.splice(index, 1); // 2nd parameter means remove one item only
+            }
+          }
         }
       })
 
@@ -559,7 +581,7 @@ async function getFolders(){
       ///////////CREATE FOLDER MENU//////////////
       var folderContainer = document.createElement('div');
       folderContainer.style.flexDirection = 'column';
-      folderContainer.setAttribute('id', data[i].GlobalID + '_create');
+      folderContainer.setAttribute('id', data[i].globalid + '_create');
 
       var folder = document.createElement('div');
       folder.style.display = 'flex';
@@ -591,7 +613,7 @@ async function getFolders(){
       subFolderForm.style.flexDirection = 'row';
       subFolderForm.style.marginLeft = 28;
       subFolderForm.style.marginBottom = 0;
-      subFolderForm.setAttribute('id', data[i].GlobalID);
+      subFolderForm.setAttribute('id', data[i].globalid);
 
       // Create input fields
       const subFolderName = document.createElement('input');
@@ -624,13 +646,13 @@ async function getFolders(){
           var uuid = self.crypto.randomUUID();
           const { data, error } = await supabase
           .from('folders')
-          .insert({ memID: memid, name: subFolderName.value, GlobalID: uuid, parent: event.target.id})
+          .insert({ memid: memid, name: subFolderName.value, globalid: uuid, parent: event.target.id})
           .select(`
             name,
-            GlobalID,
-            memID
+            globalid,
+            memid
           `)
-          .eq('memID', memid)
+          .eq('memid', memid)
         
         if(!error){
           console.log("Folder created:", data);
@@ -661,7 +683,7 @@ async function getFolders(){
       subFolderSelect.style.display = 'flex';
       subFolderSelect.style.flexDirection = 'column';
       subFolderSelect.style.marginLeft= '16px';
-      subFolderSelect.setAttribute("id", data[i].GlobalID + '_select');
+      subFolderSelect.setAttribute("id", data[i].globalid + '_select');
 
       const subFolderSelectDiv = document.createElement('div');
       subFolderSelectDiv.style.display = 'flex';
@@ -669,7 +691,7 @@ async function getFolders(){
 
       var subFolderCheck = document.createElement("input");
       subFolderCheck.setAttribute("type", "checkbox");
-      subFolderCheck.setAttribute("id", data[i].GlobalID);
+      subFolderCheck.setAttribute("id", data[i].globalid);
 
       subFolderCheck.addEventListener("change", function(){
         console.log("Checkbox clicked: ", this.checked + " | " + this.id);
@@ -695,7 +717,7 @@ async function getFolders(){
       parentSelectFolder.appendChild(subFolderSelect);
 
       var subFolderContainer = document.createElement('div');
-      subFolderContainer.setAttribute('id', data[i].GlobalID);
+      subFolderContainer.setAttribute('id', data[i].globalid);
       
       var subFolder = document.createElement('div');
       subFolder.style.display = 'flex';
@@ -731,13 +753,13 @@ async function createEpisode(){
   var uuid = self.crypto.randomUUID();
   const { data, error } = await supabase
   .from('episodes')
-  .insert({ memID: memid, name: 'S1E3', GlobalID: uuid})
+  .insert({ memid: memid, name: 'S1E3', globalid: uuid})
   .select(`
     name,
-    GlobalID,
-    memID
+    globalid,
+    memid
   `)
-  .eq('memID', memid)
+  .eq('memid', memid)
 
 if(!error){
   console.log("Episode created:", data);
@@ -791,13 +813,13 @@ folderForm.addEventListener('submit', function(event) {
     var uuid = self.crypto.randomUUID();
     const { data, error } = await supabase
     .from('folders')
-    .insert({ memID: memid, name: folderName.value, GlobalID: uuid})
+    .insert({ memid: memid, name: folderName.value, globalid: uuid})
     .select(`
       name,
-      GlobalID,
-      memID
+      globalid,
+      memid
     `)
-    .eq('memID', memid)
+    .eq('memid', memid)
   
   if(!error){
     console.log("Folder created:", data);
@@ -824,14 +846,13 @@ async function getFeaturesInFolders(){
     geometry,
     properties,
     memid,
-    fType,
     features_in_folders!inner (
     ),
     folders!inner (
-      name, GlobalID, parent
+      name, globalid, parent
     )
   `)
-  .eq('features_in_folders.memID',memid)
+  .eq('features_in_folders.memid',memid)
   .eq('memid', memid)
   console.log("Features in Folders: ", data);
 
@@ -841,13 +862,13 @@ async function getFeaturesInFolders(){
     if(data[i].folders.length > 1){
       //loop over folders
       for (var f = 0; f < data[i].folders.length; f++) {
-        var folderID = data[i].folders[f].GlobalID;
-        addFeatureToFolder(folderID,data[i]);
+        var folderid = data[i].folders[f].globalid;
+        addFeatureToFolder(folderid,data[i]);
       }
     }
     else{
-      var folderID = data[i].folders[0].GlobalID;
-      addFeatureToFolder(folderID,data[i]);
+      var folderid = data[i].folders[0].globalid;
+      addFeatureToFolder(folderid,data[i]);
     }
   }
 
@@ -1100,10 +1121,10 @@ paint: {
 
 let inputFile = document.getElementById("input_file");
 
-let pointPropertyArray = ['name','point_type','vehicleCapacity','sheltered','waterside','epicCamp','campsiteFee','campsiteLocation','campsiteClass','notes','title','state','GlobalID','OBJECTID','video_episode','video_episode2','video_episode3','archived','route','trailerFriendly'];
+let pointPropertyArray = ['name','point_type','vehicleCapacity','sheltered','waterside','epicCamp','campsiteFee','campsiteLocation','campsiteClass','notes','title','state','globalid','OBJECTID','video_episode','video_episode2','video_episode3','archived','route','trailerFriendly'];
 //console.log("pointPorpertyArray: ",pointPropertyArray);
 
-let linePropertyArray = ['name','track_type','track_difficulty','track_surface','vehicle_requirement','coordTimes','time_stamp','fullSizeFriendly','notes','title','state','GlobalID','OBJECTID','video_episode','video_episode2','video_episode3','archived','route','trailerFriendlyTrack'];
+let linePropertyArray = ['name','track_type','track_difficulty','track_surface','vehicle_requirement','coordTimes','time_stamp','fullSizeFriendly','notes','title','state','globalid','OBJECTID','video_episode','video_episode2','video_episode3','archived','route','trailerFriendlyTrack'];
 //console.log("linePropertyArray: ",linePropertyArray);
 
 inputFile.addEventListener("change", function(ev) {
@@ -1174,7 +1195,7 @@ inputFile.addEventListener("change", function(ev) {
 
           var uuid = self.crypto.randomUUID();
 
-          var feature = {memid: memid, source: theSource, globalid: theFeature.properties.GlobalID, properties: theFeature.properties,  geometry: theFeature.geometry};
+          var feature = {memid: memid, source: theSource, globalid: theFeature.properties.globalid, properties: theFeature.properties,  geometry: theFeature.geometry};
 
           uploadArray.push(feature);
 

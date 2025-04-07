@@ -841,7 +841,6 @@ async function getFeaturesInFolders(){
   .from('features')
   //.select()
   .select(`
-    name,
     globalid,
     geometry,
     properties,

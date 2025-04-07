@@ -281,6 +281,49 @@ async function selectFeature(coordinates){
       featureLineType.value = selectedFeatures[0].properties.track_type;
       featurePointType.value = "";
     }
+
+          //Clear folder checkboxes
+
+          for (var i = 0; i < folderCheckArray.length; i++) {
+            document.getElementById(folderCheckArray[i].id).checked = false;
+          }
+
+          //if selected feature is in "features in folders" add check to checkbox
+
+          for (var i = 0; i < featuresinfolders.length; i++) {
+            if(featuresinfolders[i].globalid == selectedFeatures[0].properties.GlobalID){
+              for (var f = 0; f < featuresinfolders[i].folders.length; f++) {
+                var folderid = featuresinfolders[i].folders[f].globalid;
+                document.getElementById(folderid).checked = true;
+                //addFeatureToFolder(folderid,featuresinfolders[i]);
+              }
+            }
+          }
+        
+          /*function addFeatureToFolder(id,feature){
+            var targetFolderContainer = document.getElementById(id);
+            var featureNameDiv = document.createElement('div');
+            featureNameDiv.style.display = "flex";
+            featureNameDiv.style.marginLeft = 56;
+            if(feature.geometry.type == "Point"){
+              var featureIcon = document.createElement('img');
+              featureIcon.src = "icons/location.svg";
+              featureIcon.width = 14;
+              featureNameDiv.appendChild(featureIcon)
+            }
+            else{
+              var featureIcon = document.createElement('img');
+              featureIcon.src = "icons/routing.svg";
+              featureIcon.width = 14;
+              featureNameDiv.appendChild(featureIcon)
+            }
+            var featureNameText = document.createElement('div');
+            featureNameText.style.marginLeft = 5;
+            featureNameText.innerText = feature.name;
+        
+            featureNameDiv.appendChild(featureNameText);
+            targetFolderContainer.appendChild(featureNameDiv);
+          }*/
   }
   else{
     featureName.value = "";
@@ -489,8 +532,10 @@ let folders;
 let featureFolderCheckChangedArray = [];
 let addFeatureToFolderArray = [];
 let removeFeatureFromFolderArray = [];
+let folderCheckArray = [];
 
 async function getFolders(){
+  folderCheckArray = [];
   featureFolderCheckChangedArray = [];
   const { data, error } = await supabase
   .from('folders')
@@ -531,6 +576,7 @@ async function getFolders(){
       var folderCheck = document.createElement("input");
       folderCheck.setAttribute("type", "checkbox");
       folderCheck.setAttribute("id", data[i].globalid);
+      folderCheckArray.push(folderCheck);
 
       folderCheck.addEventListener("change", function(){
         console.log("Checkbox clicked: ", this.checked + " | " + this.id);
@@ -556,7 +602,6 @@ async function getFolders(){
           }
           else{
             removeFeatureFromFolderArray.push(this.id);
-            console.log("removeFeatureFromFolderArray: ",removeFeatureFromFolderArray);
           }
           if(addFeatureToFolderArray.includes(checkID)){
             const index = addFeatureToFolderArray.indexOf(checkID);
@@ -565,7 +610,10 @@ async function getFolders(){
             }
           }
         }
+        console.log("addFeatureToFolderArray: ",addFeatureToFolderArray);
+        console.log("removeFeatureFromFolderArray: ",removeFeatureFromFolderArray);
       })
+
 
       folderSelectDiv.appendChild(folderCheck);
 
@@ -692,17 +740,43 @@ async function getFolders(){
       var subFolderCheck = document.createElement("input");
       subFolderCheck.setAttribute("type", "checkbox");
       subFolderCheck.setAttribute("id", data[i].globalid);
+      folderCheckArray.push(subFolderCheck);
 
       subFolderCheck.addEventListener("change", function(){
         console.log("Checkbox clicked: ", this.checked + " | " + this.id);
+
         var checkID = this.id;
-        if(featureFolderCheckChangedArray.includes(checkID)){
-          //feature already exists. skip.
+        if(this.checked){
+          if(addFeatureToFolderArray.includes(checkID)){
+            //feature already exists. skip.
+          }
+          else{
+            addFeatureToFolderArray.push(checkID);
+          }
+          //If id in "remove from folder" array, remove it
+          if(removeFeatureFromFolderArray.includes(checkID)){
+            const index = removeFeatureFromFolderArray.indexOf(checkID);
+            if (index > -1) { // only splice array when item is found
+              removeFeatureFromFolderArray.splice(index, 1); // 2nd parameter means remove one item only
+            }
+          }
         }
         else{
-          featureFolderCheckChangedArray.push(this.id);
-          console.log("featureFolderCheckChangedArray: ",featureFolderCheckChangedArray);
+          if(removeFeatureFromFolderArray.includes(checkID)){
+            //feature already exists. skip.
+          }
+          else{
+            removeFeatureFromFolderArray.push(this.id);
+          }
+          if(addFeatureToFolderArray.includes(checkID)){
+            const index = addFeatureToFolderArray.indexOf(checkID);
+            if (index > -1) { // only splice array when item is found
+              addFeatureToFolderArray.splice(index, 1); // 2nd parameter means remove one item only
+            }
+          }
         }
+        console.log("addFeatureToFolderArray: ",addFeatureToFolderArray);
+        console.log("removeFeatureFromFolderArray: ",removeFeatureFromFolderArray);
       })
 
       subFolderSelectDiv.appendChild(subFolderCheck);
@@ -742,6 +816,8 @@ async function getFolders(){
       parentCreateFolder.appendChild(subFolderContainer);
     }
   }
+
+  console.log("folderCheckArray: ",folderCheckArray);
 
   getFeaturesInFolders();
 
@@ -835,7 +911,7 @@ folderForm.addEventListener('submit', function(event) {
 });
 
 
-
+let featuresinfolders;
 async function getFeaturesInFolders(){
   const { data, error } = await supabase
   .from('features')
@@ -855,19 +931,21 @@ async function getFeaturesInFolders(){
   .eq('memid', memid)
   console.log("Features in Folders: ", data);
 
+  featuresinfolders = data;
+
   //Add features to folders
 
-  for (var i = 0; i < data.length; i++) {
-    if(data[i].folders.length > 1){
+  for (var i = 0; i < featuresinfolders.length; i++) {
+    if(featuresinfolders[i].folders.length > 1){
       //loop over folders
-      for (var f = 0; f < data[i].folders.length; f++) {
-        var folderid = data[i].folders[f].globalid;
-        addFeatureToFolder(folderid,data[i]);
+      for (var f = 0; f < featuresinfolders[i].folders.length; f++) {
+        var folderid = featuresinfolders[i].folders[f].globalid;
+        addFeatureToFolder(folderid,featuresinfolders[i]);
       }
     }
     else{
-      var folderid = data[i].folders[0].globalid;
-      addFeatureToFolder(folderid,data[i]);
+      var folderid = featuresinfolders[i].folders[0].globalid;
+      addFeatureToFolder(folderid,featuresinfolders[i]);
     }
   }
 

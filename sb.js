@@ -1353,7 +1353,7 @@ inputFile.addEventListener("change", function(ev) {
 
           var uuid = self.crypto.randomUUID();
 
-          var feature = {memid: memid, source: theSource, globalid: theFeature.properties.globalid, properties: theFeature.properties,  geometry: theFeature.geometry};
+          var feature = {memid: memid, source: theSource, globalid: theFeature.properties.GlobalID, properties: theFeature.properties,  geometry: theFeature.geometry};
 
           uploadArray.push(feature);
 

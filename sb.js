@@ -412,21 +412,21 @@ featureMenu.appendChild(featureForm);
 
 
 // Add event listener for form submission
-featureForm.addEventListener('submit', function(event) {
+/*featureForm.addEventListener('submit', function(event) {
   event.preventDefault(); // Prevent default form submission
   //const name = folderName.value;
   console.log('Feature Name:', featureName.value);
   // Handle form data here, e.g., send it to a server
 
-});
+});*/
 
 featureForm.addEventListener('submit', function(event) {
   event.preventDefault(); // Prevent default form submission
 
   spinner.style.display = "flex";
 
+  const theFeature = selectedFeatures[0];
   async function updateFeature(){
-    const theFeature = selectedFeatures[0];
     console.log("Updating theFeature: ",theFeature);
     let updatedProperties;
     if(theFeature.source == "Point_Source"){
@@ -486,7 +486,6 @@ featureForm.addEventListener('submit', function(event) {
     const { data, error } = await supabase
     .from('features')
     .update({
-      //name: "Mog Rim"
       udate: new Date().toISOString(),
       properties: updatedProperties
     })
@@ -525,6 +524,48 @@ featureForm.addEventListener('submit', function(event) {
   }
 
   updateFeature(event);
+
+  async function addFeatureToFolder(array){
+    const { data, error } = await supabase
+    .from('features_in_folders')
+    .insert(array)
+    //.eq('globalid', theFeature.properties.globalid)
+    //.eq('memid', memid)
+    .select()
+
+    if(!error){
+      console.log("Feature added to folder:", data);
+    }
+  }
+
+  async function removeFeatureFromFolder(){
+    const { data, error } = await supabase
+    .from('features_in_folders')
+    .delete()
+    .eq('folderid', theFeature.properties.globalid)
+    .eq('featureid', theFeature.properties.globalid)
+    .eq('memid', memid)
+    .select()
+
+    if(!error){
+      console.log("Feature removed from folder:", data);
+    }
+  }
+
+  if(addFeatureToFolderArray.length){
+    //loop through array and build submit array
+    //{ memid: memid, folderid: addFeatureToFolderArray[i], featureid: theFeature.properties.globalid }
+    var addFeatureToFolderSubmitArray = [];
+    for (var i = 0; i < addFeatureToFolderArray.length; i++) {
+      var json = {memid: memid, folderid: addFeatureToFolderArray[i], featureid: theFeature.properties.globalid};
+      addFeatureToFolderSubmitArray.push(json)
+    }
+    addFeatureToFolder(addFeatureToFolderSubmitArray);
+  }
+  if(removeFeatureFromFolderArray.length){
+    removeFeatureFromFolder();
+  }
+
 
 });
 

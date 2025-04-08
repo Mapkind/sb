@@ -1332,7 +1332,7 @@ inputFile.addEventListener("change", function(ev) {
       reader.onload = function() {
 
         let readerResult = reader.result;
-        //console.log("Reader result: ",readerResult);
+        console.log("Reader result: ",readerResult);
 
         var geojsonFile = JSON.parse(readerResult);
         console.log("geojsonFile: ",geojsonFile);

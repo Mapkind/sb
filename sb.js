@@ -431,7 +431,7 @@ featureForm.addEventListener('submit', function(event) {
     let updatedProperties;
     if(theFeature.source == "Point_Source"){
       updatedProperties = {
-        "globalid": theFeature.properties.globalid,
+        "GlobalID": theFeature.properties.GlobalID,
         "state": theFeature.properties.state,
         "title": featureName.value,
         "name": featureName.value,
@@ -453,7 +453,7 @@ featureForm.addEventListener('submit', function(event) {
     }
     else{
       updatedProperties = {
-        "globalid": theFeature.properties.globalid,
+        "GlobalID": theFeature.properties.GlobalID,
         "title": featureName.value,
         "name": featureName.value,
         "notes": theFeature.properties.notes,
@@ -489,7 +489,7 @@ featureForm.addEventListener('submit', function(event) {
       udate: new Date().toISOString(),
       properties: updatedProperties
     })
-    .eq('globalid', theFeature.properties.globalid)
+    .eq('globalid', theFeature.properties.GlobalID)
     .eq('memid', memid)
     .select()
 
@@ -497,7 +497,7 @@ featureForm.addEventListener('submit', function(event) {
       console.log("Feature updated:", data);
       if(theFeature.source == "Point_Source"){
 
-        const updateFeatureInCollection = pointCollection.features.find(({globalid}) => globalid===theFeature.properties.globalid);
+        const updateFeatureInCollection = pointCollection.features.find(({GlobalID}) => GlobalID===theFeature.properties.GlobalID);
         console.log("updateFeatureInCollection: ", updateFeatureInCollection);
 
         if(updateFeatureInCollection){
@@ -508,7 +508,7 @@ featureForm.addEventListener('submit', function(event) {
 
       }
       else{
-        const updateFeatureInCollection = lineCollection.features.find(({globalid}) => globalid===theFeature.properties.globalid);
+        const updateFeatureInCollection = lineCollection.features.find(({GlobalID}) => GlobalID===theFeature.properties.GlobalID);
         console.log("updateFeatureInCollection: ", updateFeatureInCollection);
 
         if(updateFeatureInCollection){
@@ -528,43 +528,70 @@ featureForm.addEventListener('submit', function(event) {
   async function addFeatureToFolder(array){
     const { data, error } = await supabase
     .from('features_in_folders')
-    .insert(array)
+    .upsert(array)
     //.eq('globalid', theFeature.properties.globalid)
     //.eq('memid', memid)
     .select()
 
     if(!error){
       console.log("Feature added to folder:", data);
+      refreshFeaturesInFolders();
     }
   }
 
-  async function removeFeatureFromFolder(){
+  async function removeFeatureFromFolder(array){
     const { data, error } = await supabase
     .from('features_in_folders')
     .delete()
-    .eq('folderid', theFeature.properties.globalid)
-    .eq('featureid', theFeature.properties.globalid)
+    .in('folderid', array)
+    //.eq('folderid', theFeature.properties.globalid)
+    .eq('featureid', theFeature.properties.GlobalID)
     .eq('memid', memid)
     .select()
 
     if(!error){
       console.log("Feature removed from folder:", data);
+      refreshFeaturesInFolders();
     }
   }
 
   if(addFeatureToFolderArray.length){
     //loop through array and build submit array
-    //{ memid: memid, folderid: addFeatureToFolderArray[i], featureid: theFeature.properties.globalid }
     var addFeatureToFolderSubmitArray = [];
     for (var i = 0; i < addFeatureToFolderArray.length; i++) {
-      var json = {memid: memid, folderid: addFeatureToFolderArray[i], featureid: theFeature.properties.globalid};
+      var json = {memid: memid, folderid: addFeatureToFolderArray[i], featureid: theFeature.properties.GlobalID};
       addFeatureToFolderSubmitArray.push(json)
     }
+    console.log("addFeatureToFolderSubmitArray: ",addFeatureToFolderSubmitArray);
     addFeatureToFolder(addFeatureToFolderSubmitArray);
   }
   if(removeFeatureFromFolderArray.length){
-    removeFeatureFromFolder();
+    removeFeatureFromFolder(removeFeatureFromFolderArray);
   }
+
+  async function refreshFeaturesInFolders(){
+    const { data, error } = await supabase
+    .from('features')
+    //.select()
+    .select(`
+      globalid,
+      geometry,
+      properties,
+      memid,
+      features_in_folders!inner (
+      ),
+      folders!inner (
+        name, globalid, parent
+      )
+    `)
+    .eq('features_in_folders.memid',memid)
+    .eq('memid', memid)
+    console.log("Refreshed Features in Folders: ", data);
+  
+    featuresinfolders = data;
+    spinner.style.display = "none";
+  }
+
 
 
 });
@@ -697,7 +724,7 @@ async function getFolders(){
       shareImage.style.marginLeft = 130;
       folder.appendChild(shareImage);
 
-      const subFolderForm = document.createElement('form');
+      /*const subFolderForm = document.createElement('form');
       subFolderForm.style.display = 'flex';
       subFolderForm.style.flexDirection = 'row';
       subFolderForm.style.marginLeft = 28;
@@ -717,14 +744,14 @@ async function getFolders(){
 
       // Add elements to form
       subFolderForm.appendChild(subFolderName);
-      subFolderForm.appendChild(submitButton2);
+      subFolderForm.appendChild(submitButton2);*/
       //folderForm.appendChild(submitButtonImage);
 
       // Append form to the document body
       //document.body.appendChild(subFolderForm);
 
       // Add event listener for form submission
-      subFolderForm.addEventListener('submit', function(event) {
+      /*subFolderForm.addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent default form submission
         console.log("Parent ID: ",event.target.id);
         //const name = folderName.value;
@@ -754,10 +781,10 @@ async function getFolders(){
 
         createSubFolder();
 
-      });
+      });*/
       
       folderContainer.appendChild(folder);
-      folderContainer.appendChild(subFolderForm);
+      //folderContainer.appendChild(subFolderForm);
       folderList.appendChild(folderContainer);
 
     }
@@ -832,7 +859,7 @@ async function getFolders(){
       parentSelectFolder.appendChild(subFolderSelect);
 
       var subFolderContainer = document.createElement('div');
-      subFolderContainer.setAttribute('id', data[i].globalid);
+      subFolderContainer.setAttribute('id', data[i].globalid + '_create');
       
       var subFolder = document.createElement('div');
       subFolder.style.display = 'flex';
@@ -981,20 +1008,28 @@ async function getFeaturesInFolders(){
       //loop over folders
       for (var f = 0; f < featuresinfolders[i].folders.length; f++) {
         var folderid = featuresinfolders[i].folders[f].globalid;
-        addFeatureToFolder(folderid,featuresinfolders[i]);
+        var parentid = featuresinfolders[i].folders[f].parent;
+        populateFeatureInFolder(folderid,featuresinfolders[i],parentid);
       }
     }
     else{
       var folderid = featuresinfolders[i].folders[0].globalid;
-      addFeatureToFolder(folderid,featuresinfolders[i]);
+      var parentid = featuresinfolders[i].folders[0].parent;
+      populateFeatureInFolder(folderid,featuresinfolders[i]);
     }
   }
 
-  function addFeatureToFolder(id,feature){
-    var targetFolderContainer = document.getElementById(id);
+  async function populateFeatureInFolder(id,feature,parent){
+    var targetFolderContainer = document.getElementById(id + "_create");
     var featureNameDiv = document.createElement('div');
     featureNameDiv.style.display = "flex";
-    featureNameDiv.style.marginLeft = 56;
+    if(parent){
+      featureNameDiv.style.marginLeft = 56;
+    }
+    else{
+      featureNameDiv.style.marginLeft = 28;
+    }
+    
     if(feature.geometry.type == "Point"){
       var featureIcon = document.createElement('img');
       featureIcon.src = "icons/location.svg";
@@ -1009,7 +1044,7 @@ async function getFeaturesInFolders(){
     }
     var featureNameText = document.createElement('div');
     featureNameText.style.marginLeft = 5;
-    featureNameText.innerText = feature.name;
+    featureNameText.innerText = feature.properties.name;
 
     featureNameDiv.appendChild(featureNameText);
     targetFolderContainer.appendChild(featureNameDiv);

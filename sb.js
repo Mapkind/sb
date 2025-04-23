@@ -4,11 +4,13 @@ let supabase = createClient('https://bmqblboosmqzcfdwnopt.supabase.co', 'eyJhbGc
 console.log('Supabase Instance: ', supabase);
 
 //const memid = "mem_cm2j78k6s0xg40srphrfpegh2";//me
-const memid = "mem_cm2m3ci470be00rq6bjvb8omc";//rvo
+//const memid = "mem_cm2m3ci470be00rq6bjvb8omc";//rvo
+const memid = "mem_cm6zkxcuh01w50su38oio40jv";//lso
 //const memid = "mem_cm7yxqpjj098x0tu60yg22sq4";
 //const sbkey = "20f78bee-32fd-47bf-8eae-b253cf7cafba";
 //const sbkey = "974c08ba-2db7-4cd7-9cab-b3598ec3c86d";
-const sbkey = "787a4019-dff2-41a0-9261-4a972516df34";//rvo
+//const sbkey = "787a4019-dff2-41a0-9261-4a972516df34";//rvo
+const sbkey = "27777d96-9ab8-483c-b7bd-61bc72c63a07";//lso
 
 var randomid = self.crypto.randomUUID();
 console.log("randomid:",randomid);

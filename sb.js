@@ -3,8 +3,8 @@ let supabase = createClient('https://bmqblboosmqzcfdwnopt.supabase.co', 'eyJhbGc
 
 console.log('Supabase Instance: ', supabase);
 
-//const memid = "mem_cm2j78k6s0xg40srphrfpegh2";
-const memid = "mem_cm7yxqpjj098x0tu60yg22sq4";
+const memid = "mem_cm2j78k6s0xg40srphrfpegh2";
+//const memid = "mem_cm7yxqpjj098x0tu60yg22sq4";
 //const sbkey = "20f78bee-32fd-47bf-8eae-b253cf7cafba";
 const sbkey = "974c08ba-2db7-4cd7-9cab-b3598ec3c86d";
 
@@ -1352,6 +1352,10 @@ inputFile.addEventListener("change", function(ev) {
           }
 
           var uuid = self.crypto.randomUUID();
+
+          if(!theFeature.properties.archived){
+            theFeature.properties.archived = "";
+          }
 
           var feature = {memid: memid, source: theSource, globalid: theFeature.properties.GlobalID, properties: theFeature.properties,  geometry: theFeature.geometry, archived: theFeature.properties.archived};
 

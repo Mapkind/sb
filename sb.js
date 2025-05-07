@@ -1360,8 +1360,15 @@ inputFile.addEventListener("change", function(ev) {
           if(!theFeature.properties.archived){
             theFeature.properties.archived = "";
           }
+          let featureGlobalID;
+          if(theFeature.properties.GlobalID){
+            featureGlobalID = theFeature.properties.GlobalID;
+          }
+          else{
+            featureGlobalID = uuid;
+          }
 
-          var feature = {memid: memid, source: theSource, globalid: theFeature.properties.GlobalID, properties: theFeature.properties,  geometry: theFeature.geometry, archived: theFeature.properties.archived};
+          var feature = {memid: memid, source: theSource, globalid: featureGlobalID, properties: theFeature.properties,  geometry: theFeature.geometry, archived: theFeature.properties.archived};
 
           uploadArray.push(feature);
 

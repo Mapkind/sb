@@ -1366,6 +1366,7 @@ inputFile.addEventListener("change", function(ev) {
           }
           else{
             featureGlobalID = uuid;
+            theFeature.properties.GlobalID = uuid;
           }
 
           var feature = {memid: memid, source: theSource, globalid: featureGlobalID, properties: theFeature.properties,  geometry: theFeature.geometry, archived: theFeature.properties.archived};

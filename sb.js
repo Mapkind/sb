@@ -1302,8 +1302,6 @@ inputFile.addEventListener("change", function(ev) {
   fileName = fileName[0].replace("c:\\fakepath\\", "");
   //console.log('File name: ', fileName);
 
-  
-
   let file = inputFile.files[0];
 
   console.log("File: ",file);
@@ -1328,7 +1326,27 @@ inputFile.addEventListener("change", function(ev) {
   else{
 
     console.log("Not an IMAGE");
-    
+
+    if(extension == "gpx"){
+      console.log("Upload file = gpx");
+
+      let reader = new FileReader();
+      reader.readAsText(file);
+
+      reader.onload = function() {
+          let readerResult = reader.result;
+          console.log("gpx readerResult: ", readerResult);
+
+          let parser = new DOMParser();
+          let xml = parser.parseFromString(readerResult, "text/xml");
+          console.log("gpx to xml: ", xml);
+
+          var geojsonFile = toGeoJSON.gpx(xml);
+          console.log("gpx to GeoJSON: ", geojsonFile);
+
+      }
+    }
+    else if (extension == "geojson"){
       let reader = new FileReader();
       
       reader.readAsText(file);
@@ -1397,6 +1415,8 @@ inputFile.addEventListener("change", function(ev) {
       uploadFeatures(uploadArray);
 
       }
+    }
+
 
   }
 });

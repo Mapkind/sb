@@ -1346,16 +1346,18 @@ inputFile.addEventListener("change", function(ev) {
           var geojsonFile = toGeoJSON.gpx(xml);
           console.log("gpx to GeoJSON: ", geojsonFile);
 
-          for (i = 0; i < geojsonFile.features.length; i++){
+          for (var i = 0; i < geojsonFile.features.length; i++){
             if(geojsonFile.features[i].geometry){
               var theFeature = geojsonFile.features[i];
     
               var theSource;
               if(theFeature.geometry.type == 'Point'){
                   theSource = "Point_Source";
+                  theFeature.properties.point_type = "";
               }
               else{
                   theSource = "Data_Source";
+                  theFeature.properties.track_type = "";
               }
   
               var featureGlobalID = self.crypto.randomUUID();
@@ -1370,7 +1372,8 @@ inputFile.addEventListener("change", function(ev) {
             }
 
           }
-
+          console.log("uploadArray: ", uploadArray);
+          uploadFeatures(uploadArray);
       }
     }
     else if (extension == "geojson"){
@@ -1417,12 +1420,11 @@ inputFile.addEventListener("change", function(ev) {
           uploadArray.push(feature);
 
         }
-
-
-
+        console.log("uploadArray: ", uploadArray);
+        uploadFeatures(uploadArray);
       }
     }
-    
+
     async function uploadFeatures(array){
       const { data, error } = await supabase
       .from('features')
@@ -1439,9 +1441,6 @@ inputFile.addEventListener("change", function(ev) {
         console.log("error: ", error);
       }
   }
-
-  console.log("uploadArray: ", uploadArray);
-  uploadFeatures(uploadArray);
   }
 });
 

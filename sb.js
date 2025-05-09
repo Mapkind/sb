@@ -1327,6 +1327,8 @@ inputFile.addEventListener("change", function(ev) {
 
     console.log("Not an IMAGE");
 
+    let uploadArray = [];
+
     if(extension == "gpx"){
       console.log("Upload file = gpx");
 
@@ -1344,6 +1346,31 @@ inputFile.addEventListener("change", function(ev) {
           var geojsonFile = toGeoJSON.gpx(xml);
           console.log("gpx to GeoJSON: ", geojsonFile);
 
+          for (i = 0; i < geojsonFile.features.length; i++){
+            if(geojsonFile.features[i].geometry){
+              var theFeature = geojsonFile.features[i];
+    
+              var theSource;
+              if(theFeature.geometry.type == 'Point'){
+                  theSource = "Point_Source";
+              }
+              else{
+                  theSource = "Data_Source";
+              }
+  
+              var featureGlobalID = self.crypto.randomUUID();
+  
+              theFeature.properties.GlobalID = featureGlobalID;
+              theFeature.properties.title = theFeature.properties.name;
+              theFeature.properties.notes = theFeature.properties.desc;
+
+              var feature = {memid: memid, source: theSource, globalid: featureGlobalID, properties: theFeature.properties,  geometry: theFeature.geometry, archived: ""};
+    
+              uploadArray.push(feature);
+            }
+
+          }
+
       }
     }
     else if (extension == "geojson"){
@@ -1358,8 +1385,6 @@ inputFile.addEventListener("change", function(ev) {
 
         var geojsonFile = JSON.parse(readerResult);
         console.log("geojsonFile: ",geojsonFile);
-
-        let uploadArray = [];
 
         for (var i = 0; i < geojsonFile.features.length; i++) {
 
@@ -1393,31 +1418,30 @@ inputFile.addEventListener("change", function(ev) {
 
         }
 
-        async function uploadFeatures(array){
 
-          const { data, error } = await supabase
-          .from('features')
-          .insert(array)
-          //.select()
-      
-        if(!error){
-          console.log("Features created:", data);
-          getPointFeatures(memid);
-          getLineFeatures(memid);
-          //getFeatures();
-        }
-        else{
-          console.log("error: ", error);
-        }
-      }
-      
-      console.log("uploadArray: ", uploadArray);
-      uploadFeatures(uploadArray);
 
       }
     }
+    
+    async function uploadFeatures(array){
+      const { data, error } = await supabase
+      .from('features')
+      .insert(array)
+      //.select()
+  
+      if(!error){
+        console.log("Features created:", data);
+        getPointFeatures(memid);
+        getLineFeatures(memid);
+        //getFeatures();
+      }
+      else{
+        console.log("error: ", error);
+      }
+  }
 
-
+  console.log("uploadArray: ", uploadArray);
+  uploadFeatures(uploadArray);
   }
 });
 
